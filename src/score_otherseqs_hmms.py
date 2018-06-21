@@ -6,8 +6,6 @@ by scaning them against the profile HMMs.
 import sys
 import os
 
-HMMER3_PATH = '/home/cegg/rands/scripts/hmmer3/hmmer-3.1b2-linux-intel-x86_64/binaries/'
-
 def main(ogs_dir, in_file, out_file, evalue, input_suffix, hmmer_path):
     true_positive_f_name = os.path.join(ogs_dir,
                            '{}.{}'.format(os.path.basename(in_file).split('.hmm')[0],
