@@ -1,0 +1,10 @@
+{
+  "in_dir": "example",
+  "suffix": ".fa",
+  "hmmsearch_evalue": 10,
+  "src_path": "src",
+  "clustal_path": "/usr/bin",
+  "trimal_path": "/home/cegg/rands/scripts/TRIMAL/trimal/source",
+  "hmmer3_path": "/home/cegg/rands/scripts/hmmer3/hmmer-3.1b2-linux-intel-x86_64/binaries",
+  "mmseqs2_path": "/usr/local/appl_cluster/mmseqs/v2"
+}
