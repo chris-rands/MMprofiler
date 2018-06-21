@@ -1,11 +1,13 @@
-"""Calculate summary statistics for many multiple sequence alignment files"""
+"""
+Calculate summary statistics for many multiple sequence alignment files
+"""
+
 import os
 import sys
 import time
 from numpy import mean, median
 from itertools import combinations
 from Bio import AlignIO
-
 
 def get_alignment_stats(in_file):
     """Get alignment stats for file"""

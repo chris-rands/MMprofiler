@@ -18,7 +18,8 @@ INPUT_SUFFIX = config['suffix'].lstrip('.')
 EVAL_FOR_HMMSEARCH = config['hmmsearch_evalue']  # recommend 10
 
 # Build wildcard(s)
-INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1]) for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
+INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
+                 for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
 
 # Ommit the actual tool name
 PATH_SCORE_OTHERSEQS = config['src_path'].rstrip('/')
@@ -114,7 +115,11 @@ rule add_gathering_thresholds:  # model-specific bitscore thresholds for hmms an
     run:
         with open('add_gathering_threshold_and_plot.err', 'w') as error_f:
             sys.stderr = error_f
-            hmms_add_GA_thresh_and_plot.main(os.path.dirname(input.in1[0]), os.path.dirname(input.in2[0]), os.path.dirname(input.in3[0]), os.path.dirname(output[0]), 'hmm_bitscore_plots')
+            hmms_add_GA_thresh_and_plot.main(os.path.dirname(input.in1[0]),
+                                             os.path.dirname(input.in2[0]),
+                                             os.path.dirname(input.in3[0]),
+                                             os.path.dirname(output[0]),
+                                             'hmm_bitscore_plots')
 
 ## MMSeqs2 rules
 rule MSAfasta_to_stockholm:

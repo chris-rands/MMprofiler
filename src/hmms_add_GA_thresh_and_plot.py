@@ -1,4 +1,5 @@
-"""Script for adding GA thresholds to hmm files based on the scan results
+"""
+Script for adding GA thresholds to hmm files based on the scan results
 and plotting the bitscore distributions for the known true positive and
 other (possibly false positive sequences)
 """
@@ -16,7 +17,6 @@ matplotlib.use('Agg')  # alterntaive to tunneling with ssh -X
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 
-
 def get_evalues_and_scores(in_dir):
     """Get evalues and scores from hmmer3 output file"""
     d = OrderedDict()
@@ -27,7 +27,8 @@ def get_evalues_and_scores(in_dir):
             for line in f:
                 if not line.startswith('#'):
                     line = line.strip().split()
-                    evalues.append(Decimal(line[4]))  # evalues are so small I imagine floating point precision to be an issue
+                    # evalues are so small I imagine floating point precision to be an issue
+                    evalues.append(Decimal(line[4]))
                     scores.append(float(line[5]))
             d[file_name] = [evalues, scores]
     return d

@@ -1,8 +1,12 @@
+"""
+Convert fasta aligned to stockholm aligned file
+"""
+
 import sys
 from Bio import AlignIO
 
-
 def yield_altered(alignments, append_int_to_headers):
+    """Yield altetered alignment records"""
     i = 0
     for alignment in alignments:
         for r in alignment:
@@ -29,13 +33,13 @@ def yield_altered(alignments, append_int_to_headers):
             yield '\n'.join(lst)
 
 def main(in_file, append_int_to_headers, out_file):
+    """Main work"""
     with open(in_file) as in_f:
         alignments = AlignIO.parse(in_f, "fasta")
         alignments = yield_altered(alignments, append_int_to_headers)
         with open(out_file, 'w') as out_f:
             for al in alignments:
                 out_f.write(al)
-        #AlignIO.write(alignments, out_file, "stockholm")
 
 if __name__ == '__main__':
     bool_ = sys.argv[2]
