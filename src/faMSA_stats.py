@@ -2,6 +2,7 @@
 Calculate summary statistics for many multiple sequence alignment files
 """
 
+from __future__ import division
 import os
 import sys
 import time
@@ -46,7 +47,9 @@ def get_alignment_stats(in_file):
                     matches += 1
                 else:
                     mismatches += 1
-    return in_file, indels / float(total) * 100, matches / float(matches + mismatches) * 100, gapped_cols / float(total) * 100, len(seqs)
+    return (in_file, indels / float(total) * 100,
+            matches / float(matches + mismatches) * 100,
+            gapped_cols / float(total) * 100, len(seqs))
 
 def get_dir_stats(in_dir):
     """Yield alignment stats for directoy"""

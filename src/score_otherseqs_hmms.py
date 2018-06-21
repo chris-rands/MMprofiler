@@ -9,6 +9,7 @@ import os
 __author__ = 'Chris Rands'
 
 def main(ogs_dir, in_file, out_file, evalue, input_suffix, hmmer_path):
+    """Main logic"""
     true_positive_f_name = os.path.join(ogs_dir,
                            '{}.{}'.format(os.path.basename(in_file).split('.hmm')[0],
                            input_suffix.lstrip('.')))
