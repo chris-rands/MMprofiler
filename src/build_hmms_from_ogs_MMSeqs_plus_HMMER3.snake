@@ -2,7 +2,7 @@
 Python snakemake pipeline that build profiles and profile HMMs from unaligned fasta protein familes.
  
 Example script execution:
-snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --config in_dir=test_data suffix=.fa hmmsearch_evalue=10 --cores 1 --cluster "sbatch -J profileP -o %j.slurm.out -e %j.slurm.err --constraint fast" -np
+snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --configfile example/config.json -pn
 '''
 
 # Imports
@@ -14,22 +14,18 @@ from src import faMSA_stats
 
 # Inputs
 INPUT_DIR = config['in_dir']
-INPUT_SUFFIX = config['suffix']
-INPUT_SUFFIX = INPUT_SUFFIX.lstrip('.')
-EVAL_FOR_HMMSEARCH = config['hmmsearch_evalue']  # recommend use defualt of 10
+INPUT_SUFFIX = config['suffix'].lstrip('.')
+EVAL_FOR_HMMSEARCH = config['hmmsearch_evalue']  # recommend 10
 
 # Build wildcard(s)
 INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1]) for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
 
-# Paths or module names, Warning: Hard coded
-# Original paths, should NOT have trailing slashes
 # Ommit the actual tool name
-PATH_SCORE_OTHERSEQS = 'src'
-PATH_CLUSTAL0 = '/usr/bin'
-PATH_TRIMAL = '/home/cegg/rands/scripts/TRIMAL/trimal/source'
-PATH_HMMER3 = '/home/cegg/rands/scripts/hmmer3/hmmer-3.1b2-linux-intel-x86_64/binaries'
-PATH_MMSEQS2 = '/usr/local/appl_cluster/mmseqs/v2'
-
+PATH_SCORE_OTHERSEQS = config['src_path'].rstrip('/')
+PATH_CLUSTAL0 = config['clustal_path'].rstrip('/')
+PATH_TRIMAL = config['trimal_path'].rstrip('/')
+PATH_HMMER3 = config['hmmer3_path'].rstrip('/')
+PATH_MMSEQS2 = config['mmseqs2_path'].rstrip('/')
 
 # Rules
 
@@ -106,7 +102,7 @@ rule score_otherSeqs:
     output:
         'scores_otherSeqs/{input_targets}.scores'
     shell:
-        'python3 %s %s {input} {output} %s %s' % (os.path.join(PATH_SCORE_OTHERSEQS, 'score_otherseqs_hmms.py'), INPUT_DIR, EVAL_FOR_HMMSEARCH, INPUT_SUFFIX)
+        'python3 %s %s {input} {output} %s %s %s' % (os.path.join(PATH_SCORE_OTHERSEQS, 'score_otherseqs_hmms.py'), INPUT_DIR, EVAL_FOR_HMMSEARCH, INPUT_SUFFIX, PATH_HMMER3)
 
 rule add_gathering_thresholds:  # model-specific bitscore thresholds for hmms and pdf of plots
     input:
@@ -127,7 +123,7 @@ rule MSAfasta_to_stockholm:
     output:
         'msa_trim_stockholm/{input_targets}.trim.al.sth'
     shell:
-        'python %s/faMSA_to_StockholmMSA.py {input} False {output}' %(PATH_SCORE_OTHERSEQS)
+        'python3 %s/faMSA_to_StockholmMSA.py {input} False {output}' %(PATH_SCORE_OTHERSEQS)
 
 rule stockholm_to_MSAdb:
     input:

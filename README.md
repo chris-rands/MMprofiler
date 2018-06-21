@@ -31,13 +31,13 @@ msa_trim_mmseqs_input_indexes >> mmseqs2 input indexes
 
 ## Example run
 ### Print steps
-snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --config in_dir=example suffix=.fa hmmsearch_evalue=10 --cores 1 -pn
+snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --configfile example/config.json -pn
 
 ### Execute pipeline
-snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --config in_dir=example suffix=.fa hmmsearch_evalue=10 --cores 1 -p
+snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --configfile example/config.json -p
 
 ### Delete outputs from example run (this does not remove any slurm logs)
 rm -r add_gathering_threshold_and_plot.err hmm_bitscore_plots.pdf hmms hmms_logs hmms_with_GA_thresholds msa msa_trim msa_trim_alignment_stats.txt msa_trim_mmseqs_db msa_trim_mmseqs_input_indexes msa_trim_mmseqs_profile msa_trim_mmseqs_pssm msa_trim_stockholm scores_mmseqs_positivies scores_otherSeqs scores_truePositives .snakemake/
 
-### For SLURM submission (on bee) add the cluster flag:
+### For SLURM submission (on bee) add the cluster flag, like:
 --cluster "sbatch -J profileP -o %j.slurm.out -e %j.slurm.err --constraint fast"
