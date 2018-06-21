@@ -6,7 +6,7 @@ Create profiles and profile HMMs from (unaligned) protein families/clusters, und
 Python snakemake pipeline that build profiles and profile HMMs from unaligned fasta protein familes.
 
 input:
-- `example/` >> directory of unaligned fasta sequences, 1 per group/family/cluster
+- `example/` >> directory of unaligned fasta sequences, 1 file per group and config.json file
 
 outputs:
 - `msa/` >> aligned fasta files
