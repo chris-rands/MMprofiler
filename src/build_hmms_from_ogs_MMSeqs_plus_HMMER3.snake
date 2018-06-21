@@ -12,6 +12,8 @@ import glob
 from src import hmms_add_GA_thresh_and_plot
 from src import faMSA_stats
 
+__author__ = 'Chris Rands'
+
 # Inputs
 INPUT_DIR = config['in_dir']
 INPUT_SUFFIX = config['suffix'].lstrip('.')

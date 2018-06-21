@@ -17,6 +17,8 @@ matplotlib.use('Agg')  # alterntaive to tunneling with ssh -X
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 
+__author__ = 'Chris Rands'
+
 def get_evalues_and_scores(in_dir):
     """Get evalues and scores from hmmer3 output file"""
     d = OrderedDict()

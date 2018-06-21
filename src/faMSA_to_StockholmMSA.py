@@ -5,6 +5,8 @@ Convert fasta aligned to stockholm aligned file
 import sys
 from Bio import AlignIO
 
+__author__ = 'Chris Rands'
+
 def yield_altered(alignments, append_int_to_headers):
     """Yield altetered alignment records"""
     i = 0

@@ -9,6 +9,8 @@ from numpy import mean, median
 from itertools import combinations
 from Bio import AlignIO
 
+__author__ = 'Chris Rands'
+
 def get_alignment_stats(in_file):
     """Get alignment stats for file"""
     seqs = []
