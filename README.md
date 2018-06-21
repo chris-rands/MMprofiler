@@ -4,27 +4,27 @@ Create profiles and profile HMMs from (unaligned) protein families/clusters, und
 Python snakemake pipeline that build profiles and profile HMMs from unaligned fasta protein familes.
 
 input:
-- example/ >> directory of unaligned fasta sequences, 1 per group/family/cluster
+- `example/` >> directory of unaligned fasta sequences, 1 per group/family/cluster
 
 outputs:
-- msa/ >> aligned fasta files
-- msa_trim >> trimmed aligned fasta files
-- msa_trim_alignment_stats.txt >> alignment stats
+- `msa/` >> aligned fasta files
+- `msa_trim/` >> trimmed aligned fasta files
+- `msa_trim_alignment_stats.txt` >> alignment statistics
 
-- hmms >> raw unscored hmms
-- hmms_logs >> logs of hmms
-- hmms_with_GA_thresholds >> final HMMER3 profile HMMs with custom thresholds
-- scores_otherSeqs >>> scoring of sequences not part of HMMs
-- scores_truePositives >>> scoring of sequences used to build HMMs
-- hmm_bitscore_plots.pdf >> bit score plots for HMMER3 profile HMMs
-- add_gathering_threshold_and_plot.err >> error log file
+- `hmms/` >> raw unscored profile HMMs
+- `hmms_logs/` >> logs of profile HMMs
+- `hmms_with_GA_thresholds/` >> final HMMER3 profile HMMs with custom thresholds
+- `scores_otherSeqs/` >>> scoring of sequences not part of HMMs
+- `scores_truePositives/` >>> scoring of sequences used to build HMMs
+- `hmm_bitscore_plots.pdf` >> bit score plots for HMMER3 profile HMMs
+- `add_gathering_threshold_and_plot.err` >> error log file for plots
 
-- msa_trim_stockholm >> stocholm format msas
-- scores_mmseqs_positivies >> scores of original seqs vs clusters 
-- msa_trim_mmseqs_db >> mmsqes2 database
-- msa_trim_mmseqs_profile >> mmseqs2 profiles (binary)
-- msa_trim_mmseqs_pssm >> mmseqs2 human-readable pssm
-- msa_trim_mmseqs_input_indexes >> mmseqs2 input indexes
+- `msa_trim_stockholm/` >> stockholm format MSAs
+- `scores_mmseqs_positivies/` >> scores of sequences used to build profiles vs profiles
+- `msa_trim_mmseqs_db/` >> mmseqs2 MSA database
+- `msa_trim_mmseqs_profile/` >> mmseqs2 profiles (binary)
+- `msa_trim_mmseqs_pssm/` >> mmseqs2 human-readable pssm
+- `msa_trim_mmseqs_input_indexes/` >> mmseqs2 input indexes
 
 ## Example run
 ### Print steps
