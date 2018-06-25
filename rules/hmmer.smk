@@ -1,7 +1,6 @@
 ## HMMER3 HMM rules
 
-PATH_HMMER3='.'
-# TODO this needs to be set ore to be removed from the scripts
+
 from common import hmms_add_GA_thresh_and_plot
 
 
@@ -37,7 +36,7 @@ rule score_otherSeqs:
         'scores_otherSeqs/{input_targets}.scores'
     conda: "../envs/hmmer.yaml"
     shell:
-        'python3 %s %s {input} {output} %s %s %s' % (os.path.join(SCRIPTS_DIR, 'score_otherseqs_hmms.py'), INPUT_DIR, config['hmmsearch_evalue'], INPUT_SUFFIX, PATH_HMMER3)
+        'python3 %s %s {input} {output} %s %s' % (os.path.join(SCRIPTS_DIR, 'score_otherseqs_hmms.py'), INPUT_DIR, config['hmmsearch_evalue'], INPUT_SUFFIX)
 
 rule add_gathering_thresholds:  # model-specific bitscore thresholds for hmms and pdf of plots
     input:

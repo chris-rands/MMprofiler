@@ -4,6 +4,8 @@
 !scripts/common
 !scripts/common/*
 scripts/.snakemake*
+scripts/common/__pycache__
+scripts/.DS_Store
 !Snakefile
 !config.yaml
 !samples.tsv
