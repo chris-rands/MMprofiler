@@ -1,0 +1,18 @@
+# This file should contain everything to configure the workflow on a global scale.
+# In case of sample based data it should be complemented by a samples.tsv file that contains
+# one row per sample. It can be parsed easily via pandas.
+
+
+in_dir: "../data" # relative to working dir
+suffix: ".fa"
+aligner: "mafft"  # [clustalo, mafft]
+hmmsearch_evalue: 10
+
+# parameters for trimal
+trimal:
+  gappyout: "" #Use automated selection on "gappyout" mode. This method only uses information based on gaps' distribution. (see User Guide).
+# treimming:
+#  gapthreshold: 0.9    #1 - (fraction of sequences with a gap allowed). Range: [0 - 1]
+#  cons: 60             #Minimum percentage of the positions in the original alignment to conserve. Range: [0 - 100]
+#  simthreshold: <n>    #Minimum average similarity allowed. Range: [0 - 1]
+#  conthreshold: <n>    #Minimum consistency value allowed.Range: [0 - 1]
