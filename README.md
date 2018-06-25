@@ -8,7 +8,7 @@ Insert your code into the respective folders, i.e. `scripts`, `rules`, and `envs
 
 ## Authors
 
-* Christopher Rands, Silas Kieser (@silask)
+* Christopher Rands (@chris-rands), Silas Kieser (@silask)
 
 
 ## Description
