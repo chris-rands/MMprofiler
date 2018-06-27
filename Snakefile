@@ -1,20 +1,17 @@
 '''
 Python snakemake pipeline that build profiles and profile HMMs from unaligned fasta protein familes.
 
-Example script execution:
-snakemake -s src/build_hmms_from_ogs_MMSeqs_plus_HMMER3.snake --configfile example/config.json -pn
+Example script execution from .test:
+snakemake -s ../Snakefile -d workingdir -j 1 --configfile ../config.yaml -p --use-conda  --conda-prefix ../conda_envs $@
+
+The main entry point of your workflow.
+After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+
+configfile: "config.yaml"
+
+The first rule should define the default target files
+Subsequent target rules can be specified below. They should start with all_*.
 '''
-# The main entry point of your workflow.
-# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
-
-
-#configfile: "config.yaml"
-
-
-
-# The first rule should define the default target files
-# Subsequent target rules can be specified below. They should start with all_*.
-
 
 
 # Imports

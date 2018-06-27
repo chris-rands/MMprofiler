@@ -43,8 +43,10 @@ Python snakemake pipeline that build profiles and profile HMMs from unaligned fa
 - `msa_trim_mmseqs_input_indexes/` >> mmseqs2 input indexes
 
 ## Dependancies
-- miniconda
+- Miniconda
+
 or
+
 - Clustal Omega
 - TrimAl
 - HMMER3
