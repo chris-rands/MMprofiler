@@ -39,6 +39,15 @@ rule trim:
         ' {params.params} '
 
 
+rule logo:
+    input:
+        rules.trim.output
+    output:
+        'msa_trim_logo/{input_targets}.logo.pdf'
+    conda: "../envs/alignment.yaml"
+    shell:
+        'weblogo --format pdf --sequence-type protein < {input} > {output}'
+
 
 rule align_stats:
     input:

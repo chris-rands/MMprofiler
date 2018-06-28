@@ -43,7 +43,8 @@ if len(INPUT_TARGETS)==0:
 rule all:
     input:
         "mmSeqs2.done",
-        "hmmer.done"
+        "hmmer.done",
+        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 # Rules
 rule mmseqs:
@@ -81,4 +82,5 @@ rule all_align:
     input:
         # Alignments
         expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa_trim/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS)
+        expand('msa_trim/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
+        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
