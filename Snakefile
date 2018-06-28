@@ -35,7 +35,8 @@ INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
 print(f'Input targets: {INPUT_TARGETS}')
 
 if not INPUT_TARGETS:
-    raise ValueError("No input targets specified. Change 'in_dir' and 'suffix' in the config file.")
+    raise ValueError(f'''No input targets specified in {INPUT_DIR}/*.{INPUT_SUFFIX}.
+                     Change 'in_dir' and 'suffix' in the config file.''')
 
 
 rule all:
