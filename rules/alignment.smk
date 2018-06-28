@@ -10,7 +10,8 @@ if config.get('aligner','clustalo') == 'clustalo':
             os.path.join(INPUT_DIR, '{input_targets}.%s' % (INPUT_SUFFIX))
         output:
             'msa/{input_targets}.al.fa'
-        conda: "../envs/alignment.yaml"
+        conda:
+            '../envs/alignment.yaml'
         shell:
             'clustalo --in {input} --out {output} --auto --threads {threads}'
 
@@ -21,9 +22,10 @@ if config.get('aligner','clustalo') == 'mafft':
             os.path.join(INPUT_DIR, '{input_targets}.%s' % (INPUT_SUFFIX))
         output:
             'msa/{input_targets}.al.fa'
-        conda: "../envs/alignment.yaml"
+        conda:
+            '../envs/alignment.yaml'
         shell:
-            "mafft --thread {threads} --auto {input} > {output}"
+            'mafft --thread {threads} --auto {input} > {output}'
 
 
 rule trim:
@@ -31,7 +33,8 @@ rule trim:
         rules.align.output
     output:
         'msa_trim/{input_targets}.trim.al.fa'
-    conda: "../envs/alignment.yaml"
+    conda:
+        '../envs/alignment.yaml'
     params: # this should ho in the config or so
         params= [f'-{key} {value}' for key,value in config['trimal'].items()]
     shell:
@@ -44,7 +47,8 @@ rule logo:
         rules.trim.output
     output:
         'msa_trim_logo/{input_targets}.logo.pdf'
-    conda: "../envs/alignment.yaml"
+    conda:
+        '../envs/alignment.yaml'
     shell:
         'weblogo --format pdf --sequence-type protein < {input} > {output}'
 

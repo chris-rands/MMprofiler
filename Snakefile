@@ -34,7 +34,7 @@ sys.path.append(SCRIPTS_DIR)
 INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
                  for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
 
-print(f"Input targets: {INPUT_TARGETS}")
+print(f'Input targets: {INPUT_TARGETS}')
 
 if len(INPUT_TARGETS)==0:
     raise Exception("No input targes specified. Change 'in_dir' and 'suffix' in the config file.")
@@ -42,8 +42,8 @@ if len(INPUT_TARGETS)==0:
 
 rule all:
     input:
-        "mmSeqs2.done",
-        "hmmer.done",
+        'mmSeqs2.done',
+        'hmmer.done',
         expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 # Rules
@@ -58,9 +58,9 @@ rule mmseqs:
         expand('msa_trim_mmseqs_input_indexes/{input_targets}.db', input_targets=INPUT_TARGETS),
         expand('scores_mmseqs_positivies/{input_targets}.scores', input_targets=INPUT_TARGETS)
     output:
-        touch("mmSeqs2.done")
-include: "rules/alignment.smk"
-include: "rules/mmseqs.smk"
+        touch('mmSeqs2.done')
+include: 'rules/alignment.smk'
+include: 'rules/mmseqs.smk'
 
 
 rule hmmer:
@@ -72,9 +72,9 @@ rule hmmer:
         expand('hmms_with_GA_thresholds/{input_targets}.hmm', input_targets=INPUT_TARGETS),
         expand('msa_trim_alignment_stats.txt')
     output:
-        touch("hmmer.done")
+        touch('hmmer.done')
 
-include: "rules/hmmer.smk"
+include: 'rules/hmmer.smk'
 
 # this files are intermediate files, do we request them?
 
