@@ -13,12 +13,10 @@ The first rule should define the default target files
 Subsequent target rules can be specified below. They should start with all_*.
 '''
 
-
 # Imports
 import os
 import sys
 import glob
-
 
 
 __author__ = 'Chris Rands'
@@ -36,8 +34,8 @@ INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
 
 print(f'Input targets: {INPUT_TARGETS}')
 
-if len(INPUT_TARGETS)==0:
-    raise Exception("No input targes specified. Change 'in_dir' and 'suffix' in the config file.")
+if not INPUT_TARGETS:
+    raise ValueError("No input targets specified. Change 'in_dir' and 'suffix' in the config file.")
 
 
 rule all:
@@ -59,6 +57,7 @@ rule mmseqs:
         expand('scores_mmseqs_positivies/{input_targets}.scores', input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')
+
 include: 'rules/alignment.smk'
 include: 'rules/mmseqs.smk'
 
