@@ -15,7 +15,7 @@ if config.get('aligner','clustalo') == 'clustalo':
         shell:
             'clustalo --in {input} --out {output} --auto --threads {threads}'
 
-if config.get('aligner','clustalo') == 'mafft':
+elif config.get('aligner','clustalo') == 'mafft':
 
     rule align:
         input:
@@ -27,6 +27,8 @@ if config.get('aligner','clustalo') == 'mafft':
         shell:
             'mafft --thread {threads} --auto {input} > {output}'
 
+else:
+    raise ValueError('Aligner should be "clustalo" or "mafft", alter config file')
 
 rule trim:
     input:
