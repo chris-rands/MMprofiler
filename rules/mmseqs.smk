@@ -46,22 +46,89 @@ rule profile_to_indexdb:
     shell:
         'mmseqs createindex {input} {output.tmp} -k 5 -s 7'
 
-rule input_seqs_to_indexes:
+rule make_index:
     input:
-        os.path.join(INPUT_DIR, '{input_targets}.%s' % (INPUT_SUFFIX))
+        "{folder}/{file}.fasta"
     output:
-        'msa_trim_mmseqs_input_indexes/{input_targets}.db'
+        '{folder}/{file}.db'
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs createdb {input} {output}'
 
-rule score_mmseqs_positives:
+rule make_index_fa:
     input:
-        in1 = rules.MSAdb_to_profile.output,
-        in2 = rules.input_seqs_to_indexes.output
+        "{folder}/{file}.fa"
     output:
-        out1 = 'scores_mmseqs_positivies/{input_targets}.scores',
+        '{folder}/{file}.db'
+    conda: "../envs/mmseqs.yaml"
+    shell:
+        'mmseqs createdb {input} {output}'
+
+
+## Evaluation
+
+ruleorder: score_mmseqs_train > score_mmseqs
+
+rule score_mmseqs_train:
+    input:
+        profile = rules.MSAdb_to_profile.output,
+        fasta = os.path.join(INPUT_DIR, '{input_targets}.db')
+    output:
+        out = 'mmseqs/scores/train/{input_targets}.scores',
         tmp = temp('{input_targets}_tmp2/')
     conda: "../envs/mmseqs.yaml"
     shell:
-        'mmseqs search {input.in2} {input.in1} {output.out1} {output.tmp}'
+        'mmseqs search {input.fasta} {input.profile} {output.out} {output.tmp}'
+
+
+def get_all_targets_but(INPUT_TARGETS,remove_this):
+
+    return [ x for x in INPUT_TARGETS if not x==remove_this ]
+
+
+rule get_negative_evaluation_fasta:
+    input:
+        fasta = lambda wc: expand("{in_dir}/{targets}.{suffix}",
+                          targets = get_all_targets_but(INPUT_TARGETS, wc.input_targets),**config)
+    output:
+        fasta= 'mmseqs/evaluation_seq/{input_targets}.negative.fasta',
+    params:
+        n_negatives = 2000
+    run:         # TODO: subsample
+        import numpy as np
+        from Bio import SeqIO
+
+        # random int +- 1
+        n_samples_per_file = lambda :  int(np.random.randn(1) + params.n_negatives / len(input.fasta) )
+
+        selected_sequences =[]
+
+        i=0
+        while len(selected_sequences) < params.n_negatives:
+
+            # cycle trough input files
+            seq_file = input.fasta[i % len(input.fasta) ]
+
+            i+=1
+
+            seqs = list(SeqIO.parse(seq_file,'fasta'))
+
+            n_select= min([n_samples_per_file(), len(seqs), params.n_negatives-len(selected_sequences) ])
+
+            selected_sequences += [seqs[j] for j in np.random.randint(0,len(seqs), n_select)]
+
+        assert len(selected_sequences) == params.n_negatives
+
+        SeqIO.write(selected_sequences,output.fasta,'fasta')
+
+
+rule score_mmseqs:
+    input:
+        profile = rules.MSAdb_to_profile.output,
+        fasta = 'mmseqs/evaluation_seq/{input_targets}.{classify_group}.db'
+    output:
+        out = 'mmseqs/scores/{classify_group}/{input_targets}.scores',
+        tmp = temp('{input_targets}_{classify_group}_tmp2/')
+    conda: "../envs/mmseqs.yaml"
+    shell:
+        'mmseqs search -e 1e10  {input.fasta} {input.profile} {output.out} {output.tmp}'
