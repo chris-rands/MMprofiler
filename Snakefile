@@ -33,20 +33,25 @@ SCRIPTS_DIR =  os.path.join(os.path.dirname(os.path.abspath(workflow.snakefile))
 sys.path.append(SCRIPTS_DIR)
 # TODO: one could also use the scripts directive, wich automaticaly ajusts the path from the Snakefile.
 
-# Build wildcard(s)
-INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
-                 for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
+
+
+if config.get('target_names') is None:
+
+    INPUT_TARGETS, = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX))
+else:
+    INPUT_TARGETS = config['target_names']
 
 print(f"Input targets: {INPUT_TARGETS}")
 
 if len(INPUT_TARGETS)==0:
-    raise Exception("No input targes specified. Change 'in_dir' and 'suffix' in the config file.")
-
+    raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
+elif len(INPUT_TARGETS) > 500:
+    raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
 
 rule all:
     input:
         "mmSeqs2.done",
-        "hmmer.done"
+        #"hmmer.done"
 
 # Rules
 rule mmseqs:
@@ -57,8 +62,7 @@ rule mmseqs:
         expand('msa_trim_mmseqs_profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('msa_trim_mmseqs_pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
         expand('msa_trim_mmseqs_profile/{input_targets}.profile.sk5', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_input_indexes/{input_targets}.db', input_targets=INPUT_TARGETS),
-        expand('scores_mmseqs_positivies/{input_targets}.scores', input_targets=INPUT_TARGETS)
+        expand('mmseqs/scores/{category}/{input_targets}.scores', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch("mmSeqs2.done")
 include: "rules/alignment.smk"
