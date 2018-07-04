@@ -61,7 +61,7 @@ rule mmseqs:
         expand('mmseqs/input/{input_targets}.trimmed.db', input_targets=INPUT_TARGETS),
         expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        expand('mmseqs/profile/{input_targets}.profile.sk5', input_targets=INPUT_TARGETS),
+        expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/scores/{category}/{input_targets}.scores', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch("mmSeqs2.done")
