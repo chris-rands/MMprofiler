@@ -4,7 +4,7 @@ rule MSAfasta_to_stockholm:
     input:
         rules.trim.output
     output:
-        'msa_trim_stockholm/{input_targets}.trim.al.sth'
+        'mmseqs/input/{input_targets}.trimmed.sth'
     shell:
         'python3 %s/faMSA_to_StockholmMSA.py {input} False {output}' %(SCRIPTS_DIR)
 
@@ -12,7 +12,7 @@ rule stockholm_to_MSAdb:
     input:
         rules.MSAfasta_to_stockholm.output
     output:
-        'msa_trim_mmseqs_db/{input_targets}.trim.al.db'
+        'mmseqs/input/{input_targets}.trimmed.db'
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs convertmsa {input} {output}'
@@ -21,7 +21,7 @@ rule MSAdb_to_profile:
     input:
         rules.stockholm_to_MSAdb.output
     output:
-        'msa_trim_mmseqs_profile/{input_targets}.profile'
+        'mmseqs/profile/{input_targets}.profile'
     conda: "../envs/mmseqs.yaml"
     shell:
         "mmseqs msa2profile {input} {output} "
@@ -31,7 +31,7 @@ rule profile_to_pssm:
     input:
         rules.MSAdb_to_profile.output
     output:
-        'msa_trim_mmseqs_pssm/{input_targets}.pssm'
+        'mmseqs/pssm/{input_targets}.pssm'
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs  profile2pssm {input} {output} --threads {threads}'
@@ -40,7 +40,7 @@ rule profile_to_indexdb:
     input:
         rules.MSAdb_to_profile.output
     output:
-        out1 = 'msa_trim_mmseqs_profile/{input_targets}.profile.sk5',
+        out1 = 'mmseqs/profile/{input_targets}.profile',
         tmp = temp('{input_targets}_tmp1/')
     conda: "../envs/mmseqs.yaml"
     shell:
@@ -80,7 +80,7 @@ rule score_mmseqs_train:
     shell:
         'mmseqs search {input.fasta} {input.profile} {output.out} {output.tmp}'
 
-
+## this rule works also for hmmer
 def get_all_targets_but(INPUT_TARGETS,remove_this):
 
     return [ x for x in INPUT_TARGETS if not x==remove_this ]
@@ -132,3 +132,6 @@ rule score_mmseqs:
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs search -e 1e10  {input.fasta} {input.profile} {output.out} {output.tmp}'
+
+rule merge_profiles:
+    input:

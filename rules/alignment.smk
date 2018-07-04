@@ -30,7 +30,7 @@ rule trim:
     input:
         rules.align.output
     output:
-        'msa_trim/{input_targets}.trim.al.fa'
+        'msa/{input_targets}.trim.al.fa'
     conda: "../envs/alignment.yaml"
     params: # this should ho in the config or so
         params= [f'-{key} {value}' for key,value in config['trimal'].items()]

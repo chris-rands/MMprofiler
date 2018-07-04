@@ -57,11 +57,11 @@ rule all:
 rule mmseqs:
     input:
         # MMSeqs2 Profiles
-        expand('msa_trim_stockholm/{input_targets}.trim.al.sth', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_db/{input_targets}.trim.al.db', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_profile/{input_targets}.profile.sk5', input_targets=INPUT_TARGETS),
+        expand('mmseqs/input/{input_targets}.trimmed.sth', input_targets=INPUT_TARGETS),
+        expand('mmseqs/input/{input_targets}.trimmed.db', input_targets=INPUT_TARGETS),
+        expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
+        expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
+        expand('mmseqs/profile/{input_targets}.profile.sk5', input_targets=INPUT_TARGETS),
         expand('mmseqs/scores/{category}/{input_targets}.scores', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch("mmSeqs2.done")
@@ -88,4 +88,4 @@ rule all_align:
     input:
         # Alignments
         expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa_trim/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS)
+        expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS)
