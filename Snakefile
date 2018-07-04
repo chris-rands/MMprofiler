@@ -48,6 +48,8 @@ if len(INPUT_TARGETS)==0:
 elif len(INPUT_TARGETS) > 500:
     raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
 
+
+
 rule all:
     input:
         "mmSeqs2.done",
@@ -61,7 +63,7 @@ rule mmseqs:
         expand('mmseqs/input/{input_targets}.trimmed.db', input_targets=INPUT_TARGETS),
         expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
+        expand('mmseqs/profile/{input_targets}.profile.k5s7', input_targets=INPUT_TARGETS),
         expand('mmseqs/scores/{category}/{input_targets}.scores', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch("mmSeqs2.done")

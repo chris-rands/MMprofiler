@@ -40,13 +40,13 @@ rule profile_to_indexdb:
     input:
         rules.MSAdb_to_profile.output
     output:
-        out1 = 'mmseqs/profile/{input_targets}.profile',
+        out1 = 'mmseqs/profile/{input_targets}.profile.k5s7',
         tmp = temp('{input_targets}_tmp1/')
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs createindex {input} {output.tmp} -k 5 -s 7'
 
-rule make_index:
+rule make_db:
     input:
         "{folder}/{file}.fasta"
     output:
@@ -55,7 +55,7 @@ rule make_index:
     shell:
         'mmseqs createdb {input} {output}'
 
-rule make_index_fa:
+rule make_db_fa:
     input:
         "{folder}/{file}.fa"
     output:
@@ -132,6 +132,3 @@ rule score_mmseqs:
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs search -e 1e10  {input.fasta} {input.profile} {output.out} {output.tmp}'
-
-rule merge_profiles:
-    input:
