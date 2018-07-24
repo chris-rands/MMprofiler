@@ -19,7 +19,8 @@ import sys
 import glob
 
 
-__author__ = 'Chris Rands'
+__author__ = 'Chris Rands, Silas Kieser'
+
 
 # Inputs
 INPUT_DIR = config['in_dir']
@@ -28,16 +29,49 @@ SCRIPTS_DIR =  os.path.join(os.path.dirname(os.path.abspath(workflow.snakefile))
 sys.path.append(SCRIPTS_DIR)
 # TODO: one could also use the scripts directive, wich automaticaly ajusts the path from the Snakefile.
 
-# Build wildcard(s)
-INPUT_TARGETS = ['.'.join(os.path.basename(item).split('.')[:-1])
-                 for item in glob.glob('{}/*.{}'.format(INPUT_DIR, INPUT_SUFFIX))]
+#TODO: check if files exist
+
+if config.get('target_names') is None:
+
+    INPUT_TARGETS, = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX))
+else:
+    INPUT_TARGETS = config['target_names']
 
 print(f'Input targets: {INPUT_TARGETS}')
 
-if not INPUT_TARGETS:
-    raise ValueError(f'''No input targets specified in {INPUT_DIR}/*.{INPUT_SUFFIX}.
-                     Change 'in_dir' and 'suffix' in the config file.''')
 
+if len(INPUT_TARGETS)==0:
+    raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
+elif len(INPUT_TARGETS) > 500:
+    raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
+
+if config.get('querry_dir') is not None:
+    QUERRY_DIR = config.get('querry_dir')
+else:
+    QUERRY_DIR = config['in_dir']
+
+
+if config.get('querry_names') is not None:
+    INPUT_QUERRIES = config.get('querry_names')
+
+    print(f"Querries: {INPUT_QUERRIES} ")
+
+if config.get('tmpdir') is None:
+    config['tmpdir'] = 'tmp'
+
+if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
+
+
+
+
+
+# Rules
+
+
+if config.get('querry_names') is not None:
+    rule mmseqs:
+        input:
+            expand('mmseqs/search/{querry}/{input_targets}.m8',querry = INPUT_QUERRIES, input_targets= INPUT_TARGETS)
 
 rule all:
     input:
@@ -45,17 +79,14 @@ rule all:
         'hmmer.done',
         expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
-# Rules
-rule mmseqs:
+
+rule mmseqs_evaluate:
     input:
         # MMSeqs2 Profiles
-        expand('msa_trim_stockholm/{input_targets}.trim.al.sth', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_db/{input_targets}.trim.al.db', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_profile/{input_targets}.profile.sk5', input_targets=INPUT_TARGETS),
-        expand('msa_trim_mmseqs_input_indexes/{input_targets}.db', input_targets=INPUT_TARGETS),
-        expand('scores_mmseqs_positivies/{input_targets}.scores', input_targets=INPUT_TARGETS)
+        expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
+        expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
+        #expand('mmseqs/profile/{input_targets}.profile.k5s7', input_targets=INPUT_TARGETS),
+        expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')
 
@@ -82,5 +113,6 @@ rule all_align:
     input:
         # Alignments
         expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa_trim/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+        expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
+        expand('msa/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+

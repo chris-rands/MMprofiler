@@ -34,7 +34,7 @@ rule trim:
     input:
         rules.align.output
     output:
-        'msa_trim/{input_targets}.trim.al.fa'
+        'msa/{input_targets}.trim.al.fa'
     conda:
         '../envs/alignment.yaml'
     params: # this should ho in the config or so
@@ -48,7 +48,7 @@ rule logo:
     input:
         rules.trim.output
     output:
-        'msa_trim_logo/{input_targets}.logo.pdf'
+        'msa/{input_targets}.logo.pdf'
     conda:
         '../envs/alignment.yaml'
     shell:
@@ -59,6 +59,6 @@ rule align_stats:
     input:
         expand(rules.trim.output, input_targets=INPUT_TARGETS)
     output:
-        'msa_trim_alignment_stats.txt'
+        'msa/trim_alignment_stats.txt'
     run:
         faMSA_stats.collate_stats([os.path.dirname(input[0])], output[0])
