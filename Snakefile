@@ -24,7 +24,7 @@ import glob
 
 
 
-__author__ = 'Chris Rands'
+__author__ = 'Chris Rands, Silas Kieser'
 
 # Inputs
 INPUT_DIR = config['in_dir']
