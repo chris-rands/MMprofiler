@@ -8,7 +8,6 @@ Create profiles and profile HMMs from (unaligned) protein families/clusters, und
 Python snakemake pipeline that build profiles and profile HMMs from unaligned fasta protein familes.
 
 
-
 ## Authors
 
 * Christopher Rands (@chris-rands), Silas Kieser (@silask)
@@ -22,6 +21,7 @@ Python snakemake pipeline that build profiles and profile HMMs from unaligned fa
 - `msa/` >> aligned fasta files
 - `msa_trim/` >> trimmed aligned fasta files
 - `msa_trim_alignment_stats.txt` >> alignment statistics
+- `msa_trim_logo/` >> pdf plots of alignments as sequence logos
 
 #### Hmmer3 sub-workflow
 
@@ -43,12 +43,15 @@ Python snakemake pipeline that build profiles and profile HMMs from unaligned fa
 - `msa_trim_mmseqs_input_indexes/` >> mmseqs2 input indexes
 
 ## Dependancies
-- miniconda
+- Miniconda
+
 or
+
 - Clustal Omega
 - TrimAl
 - HMMER3
 - MMseqs2
+- weblogo
 - Python>=3.6 with snakemake, numpy, Biopython, matplotlib, scipy
 
 

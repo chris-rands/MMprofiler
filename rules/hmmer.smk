@@ -12,9 +12,11 @@ rule build:
         'hmms/{input_targets}.hmm'
     log:
         'logs/hmms/{input_targets}.hmm_build.log'
-    conda: "../envs/hmmer.yaml"
+    conda:
+        '../envs/hmmer.yaml'
     shell:
         'hmmbuild -o {log} --cpu 1 --amino {output} {input}'
+
 
 rule score_truePositives:
     input:
@@ -23,20 +25,25 @@ rule score_truePositives:
         in2 = os.path.join(INPUT_DIR, '{input_targets}.%s' % (INPUT_SUFFIX))
     output:
         'scores_truePositives/{input_targets}.scores'
-    conda: "../envs/hmmer.yaml"
+    conda:
+        '../envs/hmmer.yaml'
     params:
         eval= config['hmmsearch_evalue']  # recommend 10
     shell:
         'hmmsearch -E {params.eval} --cpu {threads} --tblout {output} {input.in1} {input.in2}'
+
+
 # TODO: here params would also be more appropriate
 rule score_otherSeqs:
     input:
         rules.build.output
     output:
         'scores_otherSeqs/{input_targets}.scores'
-    conda: "../envs/hmmer.yaml"
+    conda:
+        '../envs/hmmer.yaml'
     shell:
         'python3 %s %s {input} {output} %s %s' % (os.path.join(SCRIPTS_DIR, 'score_otherseqs_hmms.py'), INPUT_DIR, config['hmmsearch_evalue'], INPUT_SUFFIX)
+
 
 rule add_gathering_thresholds:  # model-specific bitscore thresholds for hmms and pdf of plots
     input:

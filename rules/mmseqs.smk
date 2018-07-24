@@ -8,24 +8,29 @@ rule MSAfasta_to_stockholm:
     shell:
         'python3 %s/faMSA_to_StockholmMSA.py {input} False {output}' %(SCRIPTS_DIR)
 
+
 rule stockholm_to_MSAdb:
     input:
         rules.MSAfasta_to_stockholm.output
     output:
         'mmseqs/input/{input_targets}.trimmed.db'
-    conda: "../envs/mmseqs.yaml"
+    conda:
+        '../envs/mmseqs.yaml'
     shell:
         'mmseqs convertmsa {input} {output}'
+
 
 rule MSAdb_to_profile:
     input:
         rules.stockholm_to_MSAdb.output
     output:
         'mmseqs/profile/{input_targets}.profile'
-    conda: "../envs/mmseqs.yaml"
+    conda:
+        '../envs/mmseqs.yaml'
     shell:
-        "mmseqs msa2profile {input} {output} "
-        "--match-mode 1 --msa-type 2 --threads 1"
+        'mmseqs msa2profile {input} {output} '
+        '--match-mode 1 --msa-type 2 --threads 1'
+
 
 rule profile_to_pssm:
     input:
@@ -51,9 +56,11 @@ rule make_db:
         "{folder}/{file}.fasta"
     output:
         '{folder}/{file}.db'
-    conda: "../envs/mmseqs.yaml"
+    conda: 
+        "../envs/mmseqs.yaml"
     shell:
         'mmseqs createdb {input} {output}'
+
 
 rule make_db_fa:
     input:
@@ -72,31 +79,14 @@ rule search_mmseqs:
         db = temp('mmseqs/search/{querry}/{input_targets}.db'),
         index = temp('mmseqs/search/{querry}/{input_targets}.db.index'),
         tsv = 'mmseqs/search/{querry}/{input_targets}.m8',
-    conda: "../envs/mmseqs.yaml"
+    conda: 
+        "../envs/mmseqs.yaml"
     shell:
         """
             mmseqs search {input.fasta} {input.profile} {output.db} {config[tmpdir]}
 
             mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
         """
-
-
-
-
-# rule merge_search_results:
-#     input:
-#         results = lambda wc: expand(rules.search_mmseqs.output.out, input_targets =INPUT_TARGETS, **wc),
-#         index = lambda wc: expand(rules.search_mmseqs.output.index, input_targets =INPUT_TARGETS, **wc),
-#         fasta = os.path.join(QUERRY_DIR, '{querry}.db')
-#     output:
-#         out = 'mmseqs/search/{querry}.txt',
-#         index = 'mmseqs/search/{querry}.txt.index'
-#     params:
-#         names = ','.join(INPUT_TARGETS)
-#     conda: "../envs/mmseqs.yaml"
-#     shell:
-#         'mmseqs mergedbs {input.fasta} {output.out} {input.results} --prefixes {params.names}'
-
 
 ## Evaluation
 

@@ -7,3 +7,4 @@ dependencies:
   - mafft=7.313
   - clustalo
   - trimal=1.4.1
+  - weblogo
