@@ -142,7 +142,7 @@ rule get_negative_evaluation_fasta:
     input:
         fasta = lambda wc: expand("{in_dir}/{targets}.{suffix}",
                           targets = get_all_targets_but(INPUT_TARGETS, wc.input_targets),
-                          in_dir=config['in_dir'],suffix=config['suffix'])
+                          in_dir=os.path.abspath(config['in_dir']), suffix=config['suffix'].lstrip('.'))
     output:
         fasta= 'mmseqs/evaluation_seq/{input_targets}.negative.fasta',
     params:

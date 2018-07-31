@@ -41,7 +41,7 @@ print(f'Input targets: {INPUT_TARGETS}')
 
 
 if len(INPUT_TARGETS)==0:
-    raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
+    raise Exception("No input targets found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
 elif len(INPUT_TARGETS) > 500:
     raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
 
@@ -59,7 +59,8 @@ if config.get('querry_names') is not None:
 if config.get('tmpdir') is None:
     config['tmpdir'] = 'tmp'
 
-if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
+if not os.path.exists(config['tmpdir']):
+    os.makedirs(config['tmpdir'])
 
 
 
@@ -77,7 +78,7 @@ rule all:
     input:
         'mmSeqs2.done',
         'hmmer.done',
-        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+        #expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 
 rule mmseqs_evaluate:
@@ -86,7 +87,8 @@ rule mmseqs_evaluate:
         expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
         #expand('mmseqs/profile/{input_targets}.profile.k5s7', input_targets=INPUT_TARGETS),
-        expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
+        expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS),
+        expand('mmseqs/evaluation_seq/{input_targets}.negative.fasta', input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')
 
@@ -101,7 +103,7 @@ rule hmmer:
         expand('scores_truePositives/{input_targets}.scores', input_targets=INPUT_TARGETS),
         expand('scores_otherSeqs/{input_targets}.scores', input_targets=INPUT_TARGETS),
         expand('hmms_with_GA_thresholds/{input_targets}.hmm', input_targets=INPUT_TARGETS),
-        expand('msa_trim_alignment_stats.txt')
+        expand('msa/trim_alignment_stats.txt')
     output:
         touch('hmmer.done')
 
