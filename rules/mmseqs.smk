@@ -56,7 +56,7 @@ rule make_db:
         "{folder}/{file}.fasta"
     output:
         '{folder}/{file}.db'
-    conda: 
+    conda:
         "../envs/mmseqs.yaml"
     shell:
         'mmseqs createdb {input} {output}'
@@ -71,6 +71,9 @@ rule make_db_fa:
     shell:
         'mmseqs createdb {input} {output}'
 
+
+# Search using querries
+
 rule search_mmseqs:
     input:
         profile = rules.MSAdb_to_profile.output,
@@ -79,7 +82,7 @@ rule search_mmseqs:
         db = temp('mmseqs/search/{querry}/{input_targets}.db'),
         index = temp('mmseqs/search/{querry}/{input_targets}.db.index'),
         tsv = 'mmseqs/search/{querry}/{input_targets}.m8',
-    conda: 
+    conda:
         "../envs/mmseqs.yaml"
     shell:
         """
@@ -87,6 +90,18 @@ rule search_mmseqs:
 
             mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
         """
+
+
+# rule search_many_profiles:
+#     input:
+#         expand('mmseqs/search/{{querry}}/{input_targets}.m8', input_targets= INPUT_TARGETS)
+#     params:
+#         names= INPUT_TARGETS
+#     output:
+
+
+
+
 
 ## Evaluation
 
