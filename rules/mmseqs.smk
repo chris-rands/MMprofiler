@@ -77,11 +77,11 @@ rule make_db_fa:
 rule search_mmseqs:
     input:
         profile = rules.MSAdb_to_profile.output,
-        fasta = os.path.join(QUERRY_DIR, '{querry}.db')
+        fasta = os.path.join(QUERY_DIR, '{query}.db')
     output:
-        db = temp('mmseqs/search/{querry}/{input_targets}.db'),
-        index = temp('mmseqs/search/{querry}/{input_targets}.db.index'),
-        tsv = 'mmseqs/search/{querry}/{input_targets}.m8',
+        db = temp('search/{query}/{input_targets}.db'),
+        index = temp('search/{query}/{input_targets}.db.index'),
+        tsv = 'search/{query}/{input_targets}.m8',
     conda:
         "../envs/mmseqs.yaml"
     shell:
@@ -94,7 +94,7 @@ rule search_mmseqs:
 
 # rule search_many_profiles:
 #     input:
-#         expand('mmseqs/search/{{querry}}/{input_targets}.m8', input_targets= INPUT_TARGETS)
+#         expand('search/{{query}}/{input_targets}.m8', input_targets= INPUT_TARGETS)
 #     params:
 #         names= INPUT_TARGETS
 #     output:
@@ -144,9 +144,9 @@ def subsample_fasta(input_fasta, N, output_fasta= None):
 
 rule get_negative_evaluation_fasta:
     input:
-        fasta = lambda wc: expand("{in_dir}/{targets}{suffix}",
+        fasta = lambda wc: expand("{in_dir}/{targets}.{suffix}",
                           targets = get_all_targets_but(INPUT_TARGETS, wc.input_targets),
-                          in_dir=config['in_dir'],suffix=config['suffix'])
+                          in_dir=config['in_dir'],suffix=INPUT_SUFFIX)
     output:
         fasta= 'evaluation_seq/negative/{input_targets}.fasta',
     params:
