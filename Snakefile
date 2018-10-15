@@ -45,39 +45,41 @@ if len(INPUT_TARGETS)==0:
 elif len(INPUT_TARGETS) > 500:
     raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
 
-if config.get('querry_dir') is not None:
-    QUERRY_DIR = config.get('querry_dir')
+if config.get('query_dir') is not None:
+    QUERY_DIR = config.get('query_dir')
+
+    if config.get('query_names') is not None:
+        INPUT_QUERRIES = config.get('query_names')
+    else:
+        INPUT_QUERRIES, = glob_wildcards('{}/{{querries}}.{}'.format(QUERY_DIR, INPUT_SUFFIX))
+
+        print(f"Querries: {INPUT_QUERRIES} ")
+
 else:
-    QUERRY_DIR = config['in_dir']
-
-
-if config.get('querry_names') is not None:
-    INPUT_QUERRIES = config.get('querry_names')
-
-    print(f"Querries: {INPUT_QUERRIES} ")
+    QUERY_DIR = config['in_dir']
+    INPUT_QUERRIES= None
 
 if config.get('tmpdir') is None:
-    config['tmpdir'] = 'tmp'
+    config['tmpdir'] = '/tmp'
+
 
 if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
-
-
 
 
 
 # Rules
 
 
-if config.get('querry_names') is not None:
+if INPUT_QUERRIES is not None:
     rule mmseqs:
         input:
-            expand('mmseqs/search/{querry}/{input_targets}.m8',querry = INPUT_QUERRIES, input_targets= INPUT_TARGETS)
+            expand('search/{query}/{input_targets}.m8',query = INPUT_QUERRIES, input_targets= INPUT_TARGETS)
 
 rule all:
     input:
         'mmSeqs2.done',
-        'hmmer.done',
-        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+        # 'hmmer.done',
+        #expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 
 rule mmseqs_evaluate:
@@ -85,7 +87,6 @@ rule mmseqs_evaluate:
         # MMSeqs2 Profiles
         expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        #expand('mmseqs/profile/{input_targets}.profile.k5s7', input_targets=INPUT_TARGETS),
         expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')
@@ -115,4 +116,3 @@ rule all_align:
         expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
         expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
         expand('msa/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
-
