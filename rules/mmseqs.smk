@@ -146,7 +146,7 @@ rule get_negative_evaluation_fasta:
     output:
         fasta= 'mmseqs/evaluation_seq/{input_targets}.negative.fasta',
     params:
-        n_negatives = 2000
+        n_negatives = 10000
     run:
 
 
@@ -190,7 +190,7 @@ rule score_mmseqs:
     shell:
         """
 
-        mmseqs search -e 1e10  {input.fasta} {input.profile} {output.db} {config[tmpdir]}
+        mmseqs search -e 1000  {input.fasta} {input.profile} {output.db} {config[tmpdir]}
         mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
 
         """
