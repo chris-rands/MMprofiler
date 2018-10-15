@@ -25,6 +25,7 @@ scripts/.DS_Store
 !.test
 !.test/data
 !.test/data/*.fa
+!.test/queries
 !.test/queries/*.fa
 !test.sh
 !pfpf
