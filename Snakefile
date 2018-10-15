@@ -60,7 +60,8 @@ else:
     INPUT_QUERRIES= None
 
 if config.get('tmpdir') is None:
-    config['tmpdir'] = 'tmp'
+    config['tmpdir'] = '/tmp'
+
 
 if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
 

@@ -108,7 +108,7 @@ rule search_mmseqs:
 
 rule get_train_seq:
     input:
-        fasta = os.path.join(INPUT_DIR, '{input_targets}.db')
+        fasta = os.path.join(INPUT_DIR, '{input_targets}.'+INPUT_SUFFIX)
     output:
         temp('evaluation_seq/train/{input_targets}.fasta')
     shell:
