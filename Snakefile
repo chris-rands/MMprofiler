@@ -74,7 +74,7 @@ if config.get('querry_names') is not None:
 rule all:
     input:
         'mmSeqs2.done',
-        'hmmer.done',
+        # 'hmmer.done',
         #expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 
@@ -83,7 +83,6 @@ rule mmseqs_evaluate:
         # MMSeqs2 Profiles
         expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
         expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        #expand('mmseqs/profile/{input_targets}.profile.k5s7', input_targets=INPUT_TARGETS),
         expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')

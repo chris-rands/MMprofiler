@@ -105,25 +105,14 @@ rule search_mmseqs:
 
 ## Evaluation
 
-ruleorder: score_mmseqs_train > score_mmseqs
 
-rule score_mmseqs_train:
+rule get_train_seq:
     input:
-        profile = rules.MSAdb_to_profile.output,
         fasta = os.path.join(INPUT_DIR, '{input_targets}.db')
     output:
-        db = temp('mmseqs/scores/train/{input_targets}.scores'),
-        index = temp('mmseqs/scores/train/{input_targets}.scores.index'),
-        tsv = 'mmseqs/scores/train/{input_targets}.m8',
-    conda: "../envs/mmseqs.yaml"
+        temp('evaluation_seq/train/{input_targets}.fasta')
     shell:
-        """
-
-            mmseqs search {input.fasta} {input.profile} {output.db} {config[tmpdir]}
-
-            mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
-
-        """
+        "cp {input} {output}" # TODO: make symlink
 
 ## this rule works also for hmmer
 def get_all_targets_but(INPUT_TARGETS,remove_this):
@@ -155,11 +144,11 @@ def subsample_fasta(input_fasta, N, output_fasta= None):
 
 rule get_negative_evaluation_fasta:
     input:
-        fasta = lambda wc: expand("{in_dir}/{targets}.{suffix}",
+        fasta = lambda wc: expand("{in_dir}/{targets}{suffix}",
                           targets = get_all_targets_but(INPUT_TARGETS, wc.input_targets),
                           in_dir=config['in_dir'],suffix=config['suffix'])
     output:
-        fasta= 'mmseqs/evaluation_seq/{input_targets}.negative.fasta',
+        fasta= 'evaluation_seq/negative/{input_targets}.fasta',
     params:
         n_negatives = 2000
     run:
@@ -196,7 +185,7 @@ rule get_negative_evaluation_fasta:
 rule score_mmseqs:
     input:
         profile = rules.MSAdb_to_profile.output,
-        fasta = 'mmseqs/evaluation_seq/{input_targets}.{classify_group}.db'
+        fasta = 'evaluation_seq/{classify_group}/{input_targets}.db'
     output:
         db = temp('mmseqs/scores/{classify_group}/{input_targets}.scores'),
         index = temp('mmseqs/scores/{classify_group}/{input_targets}.scores.index'),
