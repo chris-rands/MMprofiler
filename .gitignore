@@ -24,7 +24,8 @@ scripts/.DS_Store
 !.travis.yml
 !.test
 !.test/data
-!.test/data/*
-!.test/test.sh
+!test/data/*
+!test.sh
+!run.sh
 .test/.snakemake*
 .test/workingdir*

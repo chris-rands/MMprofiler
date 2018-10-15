@@ -63,8 +63,6 @@ if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
 
 
 
-
-
 # Rules
 
 
@@ -77,7 +75,7 @@ rule all:
     input:
         'mmSeqs2.done',
         'hmmer.done',
-        expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+        #expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 
 rule mmseqs_evaluate:
@@ -115,4 +113,3 @@ rule all_align:
         expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
         expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
         expand('msa/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
-
