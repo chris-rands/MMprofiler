@@ -47,16 +47,17 @@ elif len(INPUT_TARGETS) > 500:
 
 if config.get('query_dir') is not None:
     QUERY_DIR = config.get('query_dir')
+
+    if config.get('query_names') is not None:
+        INPUT_QUERRIES = config.get('query_names')
+    else:
+        INPUT_QUERRIES, = glob_wildcards('{}/{{querries}}.{}'.format(QUERY_DIR, INPUT_SUFFIX))
+
+        print(f"Querries: {INPUT_QUERRIES} ")
+
 else:
     QUERY_DIR = config['in_dir']
-
-
-if config.get('query_names') is not None:
-    INPUT_QUERRIES = config.get('query_names')
-else:
-    INPUT_QUERRIES, = glob_wildcards('{}/{{querries}}.{}'.format(QUERY_DIR, INPUT_SUFFIX))
-
-    print(f"Querries: {INPUT_QUERRIES} ")
+    INPUT_QUERRIES= None
 
 if config.get('tmpdir') is None:
     config['tmpdir'] = 'tmp'
@@ -68,7 +69,7 @@ if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
 # Rules
 
 
-if config.get('query_names') is not None:
+if INPUT_QUERRIES is not None:
     rule mmseqs:
         input:
             expand('search/{query}/{input_targets}.m8',query = INPUT_QUERRIES, input_targets= INPUT_TARGETS)
