@@ -8,6 +8,10 @@ rule MSAfasta_to_stockholm:
     shell:
         'python3 %s/faMSA_to_StockholmMSA.py {input} False {output}' %(SCRIPTS_DIR)
 
+# TODO: check name. 
+# TODO: concaternate all stockholm MSAfasta_to_stockholm
+# go on with one profile.
+
 
 rule stockholm_to_MSAdb:
     input:
