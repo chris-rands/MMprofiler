@@ -1,53 +1,52 @@
 """
-Convert fasta aligned to stockholm aligned file
+Convert multiple fasta aligned to stockholm aligned file
 """
 
 import sys
 from Bio import AlignIO
 
-__author__ = 'Chris Rands'
+__author__ = 'Chris Rands, Silas Kieser'
 
-def yield_altered(alignments, append_int_to_headers):
-    """Yield altetered alignment records"""
-    i = 0
-    for alignment in alignments:
-        for r in alignment:
-            i += 1
-            if append_int_to_headers:
-                r.description += '_SeqNUM:{}'.format(i)
-                r.id = r.description.split()[0]
-        stockholm_al = alignment.format('stockholm')
-        num_ids = stockholm_al.count('\n#=GF AC')
-        if num_ids == 1:
-            yield stockholm_al
-        if num_ids > 1:
-            raise SystemExit('Error: Two "GF" header lines, format not as expected')
-        else:  # 0
-            print('Adding "#=GF AC" header line to output...')
-            lst, flag = [], False
-            for line in stockholm_al.split('\n'):
-                if flag:
-                    lst.append('#=GF AC {}'.format(line.split()[0]))
-                    flag = False
-                elif line.startswith('#=GF'):
-                    flag = True
-                lst.append(line)
-            yield '\n'.join(lst)
+def main(FamilyIds,Alignment_files,out_stockholm_file):
 
-def main(in_file, append_int_to_headers, out_file):
-    """Main work"""
-    with open(in_file) as in_f:
-        alignments = AlignIO.parse(in_f, "fasta")
-        alignments = yield_altered(alignments, append_int_to_headers)
-        with open(out_file, 'w') as out_f:
-            for al in alignments:
-                out_f.write(al)
 
-if __name__ == '__main__':
-    bool_ = sys.argv[2]
-    if bool_ not in {'True', 'False'}:
-        raise ValueError('2nd arg must be "True" or "False"')
-    bool_ = eval(bool_)
-    if bool_:
-        print("Adding seq number counts to headers...")
-    main(sys.argv[1], bool_, sys.argv[3])
+    assert len(FamilyIds) == len(Alignment_files), 'Need for each FamilyID a mas file'
+    assert len(set(FamilyIds)) == len(FamilyIds), "Familiy Ids ned to be unique!"
+
+    def unique_id(i,j):
+        return f"{FamilyIds[i]}/{j}"
+
+
+    with open(out_stockholm_file,'w') as fout:
+        for i in range(len(FamilyIds)) :
+            fout.write("# STOCKHOLM 1.0\n")
+            fout.write(f'#=GF AC {FamilyIds[i]}\n')
+            # write metadata
+            for j,record in enumerate(AlignIO.read(Alignment_files[i],'fasta')):
+                fout.write(f"#=GS {unique_id(i,j)} ID {record.id}\n")
+                if not record.id==record.description:
+                    fout.write(f"#=GS {unique_id(i,j)} DE {record.description}\n")
+
+            #write sequences
+            for j,record in enumerate(AlignIO.read(Alignment_files[i],'fasta')):
+                fout.write(f"{unique_id(i,j)} {record.seq}\n")
+
+            fout.write('//\n')
+
+
+if __name__ == "__main__":
+    if snakemake is not None:
+        main(snakemake.params.family_ids,
+             snakemake.input.alignment_files,
+             snakemake.output.stockholm_file
+             )
+    else:
+
+        import argparse
+
+        p = argparse.ArgumentParser()
+        p.add_argument("--family-ids",nargs='+',des='FamilyIds')
+        p.add_argument("--alignment-files",nargs='+',des='Alignment_files')
+        p.add_argument("--stockholm-file",dest='out_stockholm_file')
+        args = vars(p.parse_args())
+        get_fasta_of_bins(**args)

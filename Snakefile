@@ -73,7 +73,7 @@ if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
 if INPUT_QUERRIES is not None:
     rule mmseqs:
         input:
-            expand('search/{query}/{input_targets}.m8',query = INPUT_QUERRIES, input_targets= INPUT_TARGETS)
+            expand('search/{query}.m8',query = INPUT_QUERRIES)
 
 rule all:
     input:
@@ -85,9 +85,9 @@ rule all:
 rule mmseqs_evaluate:
     input:
         # MMSeqs2 Profiles
-        expand('mmseqs/profile/{input_targets}.profile', input_targets=INPUT_TARGETS),
-        expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
-        expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
+        'mmseqs/profile/profile',
+        #expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
+        #expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')
 

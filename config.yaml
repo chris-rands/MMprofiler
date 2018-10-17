@@ -10,8 +10,8 @@ hmmsearch_evalue: 10
 
 # parameters for trimal
 trimal:
-  gappyout: "" #Use automated selection on "gappyout" mode. This method only uses information based on gaps' distribution. (see User Guide).
-# trimming:
+  gapthreshold: 0.9
+#  gappyout: "" #Use automated selection on "gappyout" mode. This method only uses information based on gaps' distribution. (see User Guide).
 #  gapthreshold: 0.9    #1 - (fraction of sequences with a gap allowed). Range: [0 - 1]
 #  cons: 60             #Minimum percentage of the positions in the original alignment to conserve. Range: [0 - 100]
 #  simthreshold: <n>    #Minimum average similarity allowed. Range: [0 - 1]
