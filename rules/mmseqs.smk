@@ -2,22 +2,20 @@
 ## MMSeqs2 rules
 rule MSAfasta_to_stockholm:
     input:
-        rules.trim.output
+        alignment_files= expand(rules.trim.output,input_targets=INPUT_TARGETS)
     output:
-        'mmseqs/input/{input_targets}.trimmed.sth'
-    shell:
-        'python3 %s/faMSA_to_StockholmMSA.py {input} False {output}' %(SCRIPTS_DIR)
-
-# TODO: check name. 
-# TODO: concaternate all stockholm MSAfasta_to_stockholm
-# go on with one profile.
+        stockholm_file='mmseqs/input/msa_trimmed.sth'
+    params:
+        family_ids=INPUT_TARGETS
+    script:
+        "../scripts/faMSA_to_StockholmMSA.py"
 
 
 rule stockholm_to_MSAdb:
     input:
-        rules.MSAfasta_to_stockholm.output
+        config.get('stockholm_file',rules.MSAfasta_to_stockholm.output)
     output:
-        'mmseqs/input/{input_targets}.trimmed.db'
+        'mmseqs/input/msa_trimmed.db'
     conda:
         '../envs/mmseqs.yaml'
     shell:
@@ -28,19 +26,19 @@ rule MSAdb_to_profile:
     input:
         rules.stockholm_to_MSAdb.output
     output:
-        'mmseqs/profile/{input_targets}.profile'
+        'mmseqs/profile/profile'
     conda:
         '../envs/mmseqs.yaml'
     shell:
         'mmseqs msa2profile {input} {output} '
         '--match-mode 1 --msa-type 2 --threads 1'
 
-
+# ERROR: gives only first profile
 rule profile_to_pssm:
     input:
         rules.MSAdb_to_profile.output
     output:
-        'mmseqs/pssm/{input_targets}.pssm'
+        'mmseqs/pssm/profile.pssm'
     conda: "../envs/mmseqs.yaml"
     shell:
         'mmseqs  profile2pssm {input} {output} --threads {threads}'
@@ -83,9 +81,9 @@ rule search_mmseqs:
         profile = rules.MSAdb_to_profile.output,
         fasta = os.path.join(QUERY_DIR, '{query}.db')
     output:
-        db = temp('search/{query}/{input_targets}.db'),
-        index = temp('search/{query}/{input_targets}.db.index'),
-        tsv = 'search/{query}/{input_targets}.m8',
+        db = temp('search/{query}.db'),
+        index = temp('search/{query}.db.index'),
+        tsv = 'search/{query}.m8',
     conda:
         "../envs/mmseqs.yaml"
     shell:
