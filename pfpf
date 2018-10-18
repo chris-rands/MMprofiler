@@ -1,6 +1,6 @@
+#!/usr/bin/env bash
 
-
-# ideally choose abs path or path relative to woring dir
+set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
