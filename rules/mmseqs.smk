@@ -1,5 +1,6 @@
 
 ## MMSeqs2 rules
+localrules: MSAfasta_to_stockholm
 rule MSAfasta_to_stockholm:
     input:
         alignment_files= expand(rules.trim.output,input_targets=INPUT_TARGETS)
@@ -7,6 +8,8 @@ rule MSAfasta_to_stockholm:
         stockholm_file='mmseqs/input/msa_trimmed.sth'
     params:
         family_ids=INPUT_TARGETS
+    threads:
+        1
     script:
         "../scripts/faMSA_to_StockholmMSA.py"
 
@@ -18,6 +21,7 @@ rule stockholm_to_MSAdb:
         'mmseqs/input/msa_trimmed.db'
     conda:
         '../envs/mmseqs.yaml'
+    threads: 1
     shell:
         'mmseqs convertmsa {input} {output}'
 
@@ -31,7 +35,7 @@ rule MSAdb_to_profile:
         '../envs/mmseqs.yaml'
     shell:
         'mmseqs msa2profile {input} {output} '
-        '--match-mode 1 --msa-type 2 --threads 1'
+        '--match-mode 1 --msa-type 2 --threads {threads}'
 
 # ERROR: gives only first profile
 rule profile_to_pssm:
@@ -40,6 +44,7 @@ rule profile_to_pssm:
     output:
         'mmseqs/pssm/profile.pssm'
     conda: "../envs/mmseqs.yaml"
+    threads: config['threads']
     shell:
         'mmseqs  profile2pssm {input} {output} --threads {threads}'
 
@@ -60,8 +65,9 @@ rule make_db:
         '{folder}/{file}.db'
     conda:
         "../envs/mmseqs.yaml"
+    threads: config['threads']
     shell:
-        'mmseqs createdb {input} {output}'
+        'mmseqs createdb --threads {threads} {input} {output}'
 
 
 rule make_db_fa:
@@ -70,8 +76,9 @@ rule make_db_fa:
     output:
         '{folder}/{file}.db'
     conda: "../envs/mmseqs.yaml"
+    threads: config['threads']
     shell:
-        'mmseqs createdb {input} {output}'
+        'mmseqs createdb --threads {threads} {input} {output}'
 
 
 # Search using querries
@@ -84,13 +91,14 @@ rule search_mmseqs:
         db = temp('search/{query}.db'),
         index = temp('search/{query}.db.index'),
         tsv = 'search/{query}.m8',
+    threads: config['threads']
     conda:
         "../envs/mmseqs.yaml"
     shell:
         """
-            mmseqs search {input.fasta} {input.profile} {output.db} {config[tmpdir]}
+            mmseqs search --threads {threads} {input.fasta} {input.profile} {output.db} {config[tmpdir]}
 
-            mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
+            mmseqs convertalis --threads {threads} {input.fasta} {input.profile} {output.db} {output.tsv}
         """
 
 

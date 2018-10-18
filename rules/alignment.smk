@@ -12,6 +12,7 @@ if config.get('aligner','clustalo') == 'clustalo':
             'msa/{input_targets}.al.fa'
         conda:
             '../envs/alignment.yaml'
+        threads: config['threads']
         shell:
             'clustalo --in {input} --out {output} --auto --threads {threads}'
 
@@ -24,6 +25,7 @@ elif config.get('aligner','clustalo') == 'mafft':
             'msa/{input_targets}.al.fa'
         conda:
             '../envs/alignment.yaml'
+        threads: config['threads']
         shell:
             'mafft --thread {threads} --auto {input} > {output}'
 
@@ -39,6 +41,7 @@ rule trim:
         '../envs/alignment.yaml'
     params: # this should ho in the config or so
         params= [f'-{key} {value}' for key,value in config['trimal'].items()]
+    threads: 1
     shell:
         'trimal -in {input} -out {output}'
         ' {params.params} '
@@ -60,5 +63,6 @@ rule align_stats:
         expand(rules.trim.output, input_targets=INPUT_TARGETS)
     output:
         'msa/trim_alignment_stats.txt'
+    threads: 1
     run:
         faMSA_stats.collate_stats([os.path.dirname(input[0])], output[0])
