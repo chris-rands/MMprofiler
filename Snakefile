@@ -86,7 +86,7 @@ rule mmseqs_evaluate:
     input:
         # MMSeqs2 Profiles
         'mmseqs/profile/profile',
-        #expand('mmseqs/pssm/{input_targets}.pssm', input_targets=INPUT_TARGETS),
+        # 'mmseqs/pssm/profile.pssm' # works but may be ressource intensive
         #expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
     output:
         touch('mmSeqs2.done')

@@ -11,14 +11,9 @@ rule MSAfasta_to_stockholm:
         "../scripts/faMSA_to_StockholmMSA.py"
 
 
-# TODO: check name.
-# TODO: concaternate all stockholm MSAfasta_to_stockholm
-# go on with one profile.
-
-
 rule stockholm_to_MSAdb:
     input:
-        rules.MSAfasta_to_stockholm.output
+        config.get('stockholm_file',rules.MSAfasta_to_stockholm.output)
     output:
         'mmseqs/input/msa_trimmed.db'
     conda:
