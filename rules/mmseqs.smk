@@ -65,9 +65,9 @@ rule make_db:
         '{folder}/{file}.db'
     conda:
         "../envs/mmseqs.yaml"
-    threads: config['threads']
+    threads: 1
     shell:
-        'mmseqs createdb --threads {threads} {input} {output}'
+        'mmseqs createdb {input} {output}'
 
 
 rule make_db_fa:
@@ -76,9 +76,9 @@ rule make_db_fa:
     output:
         '{folder}/{file}.db'
     conda: "../envs/mmseqs.yaml"
-    threads: config['threads']
+    threads: 1
     shell:
-        'mmseqs createdb --threads {threads} {input} {output}'
+        'mmseqs createdb  {input} {output}'
 
 
 # Search using querries
@@ -91,12 +91,14 @@ rule search_mmseqs:
         db = temp('search/{query}.db'),
         index = temp('search/{query}.db.index'),
         tsv = 'search/{query}.m8',
+    params:
+        extra=config.get("mmseqs_search_commands","")
     threads: config['threads']
     conda:
         "../envs/mmseqs.yaml"
     shell:
         """
-            mmseqs search --threads {threads} {input.fasta} {input.profile} {output.db} {config[tmpdir]}
+            mmseqs search {params.extra} --threads {threads} {input.fasta} {input.profile} {output.db} {config[tmpdir]}
 
             mmseqs convertalis --threads {threads} {input.fasta} {input.profile} {output.db} {output.tsv}
         """
