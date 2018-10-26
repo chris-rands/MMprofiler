@@ -196,7 +196,7 @@ rule score_mmseqs:
     shell:
         """
 
-        mmseqs search -e 1e10  {input.fasta} {input.profile} {output.db} {config[tmpdir]}
+        mmseqs search -e 10  {input.fasta} {input.profile} {output.db} {config[tmpdir]}
         mmseqs convertalis {input.fasta} {input.profile} {output.db} {output.tsv}
 
         """
