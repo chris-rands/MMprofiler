@@ -80,6 +80,16 @@ rule make_db_fa:
     shell:
         'mmseqs createdb  {input} {output}'
 
+rule make_db_faa:
+    input:
+        "{folder}/{file}.faa"
+    output:
+        '{folder}/{file}.db'
+    conda: "../envs/mmseqs.yaml"
+    threads: 1
+    shell:
+        'mmseqs createdb  {input} {output}'
+
 
 # Search using querries
 
