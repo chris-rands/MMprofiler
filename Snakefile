@@ -20,30 +20,39 @@ import glob
 
 
 __author__ = 'Chris Rands, Silas Kieser'
-
-
-# Inputs
-INPUT_DIR = config['in_dir']
-INPUT_SUFFIX = config['suffix'].lstrip('.')
 SCRIPTS_DIR =  os.path.join(os.path.dirname(os.path.abspath(workflow.snakefile)), "scripts")
 sys.path.append(SCRIPTS_DIR)
 # TODO: one could also use the scripts directive, wich automaticaly ajusts the path from the Snakefile.
+INPUT_SUFFIX = config['suffix'].lstrip('.')
 
-#TODO: check if files exist
+if "in_dir" in config:
 
-if config.get('target_names') is None:
+    # Inputs
+    INPUT_DIR = config['in_dir']
 
-    INPUT_TARGETS, = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX))
+    #TODO: check if files exist
+
+    if config.get('target_names') is None:
+
+        INPUT_TARGETS, = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX))
+    else:
+        INPUT_TARGETS = config['target_names']
+
+    print(f'Input targets: {INPUT_TARGETS}')
+
+
+    if len(INPUT_TARGETS)==0:
+        raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
+    elif len(INPUT_TARGETS) > 500:
+        raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
+
 else:
-    INPUT_TARGETS = config['target_names']
+    if not "stockholm_file" in config:
+        raise IOError("need 'in_dir' or 'stockholm_file' in configfile.")
 
-print(f'Input targets: {INPUT_TARGETS}')
+    INPUT_TARGETS=[]
+    INPUT_DIR=""
 
-
-if len(INPUT_TARGETS)==0:
-    raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
-elif len(INPUT_TARGETS) > 500:
-    raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
 
 if config.get('query_dir') is not None:
     QUERY_DIR = config.get('query_dir')
@@ -56,7 +65,7 @@ if config.get('query_dir') is not None:
         print(f"Querries: {INPUT_QUERRIES} ")
 
 else:
-    QUERY_DIR = config['in_dir']
+    QUERY_DIR = "queries"
     INPUT_QUERRIES= None
 
 if config.get('tmpdir') is None:
