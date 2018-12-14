@@ -1,0 +1,9 @@
+name: og_classifier
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - mafft=7.407
+  - trimal=1.4.1
+  - mmseqs2=7.4e23d

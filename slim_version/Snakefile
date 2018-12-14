@@ -1,0 +1,76 @@
+INPUT_TARGETS = [i for i in range(2328) if os.path.isfile('data/OGs/og_{}.fasta'.format(i))]
+THREADS = 8
+QUERY_DIR = "data/genomes/"
+TMP_DIR = "data/mmseqs/search/tmp/"
+GENOMES = ["000019625.1", "000230655.2", "000828655.1", "000828675.1", "000832145.1"]
+
+rule all:
+    input:
+        #["data/msa/og_{}.trim.al.fa".format(i) for i in range(5)],
+        #"data/mmseqs/input/msa_trimmed.db"
+        #"data/mmseqs/profile/profile"
+        expand("data/mmseqs/search/{query}.m8", query=GENOMES)
+
+rule align:
+    input:
+        'data/OGs/og_{og_id}.fasta'
+    output:
+        'data/msa/og_{og_id}.al.fa'
+    shell:
+        'mafft --quiet {input} > {output}'
+
+rule trim:
+    input:
+        rules.align.output
+    output:
+        'data/msa/og_{og_id}.trim.al.fa'
+    run:
+        shell('trimal -in {input} -out {output}')
+        shell('python scripts/faMSAPercID.py {output}')
+
+rule MSAfasta_to_stockholm:
+    input:
+        alignment_files = expand(rules.trim.output, og_id=INPUT_TARGETS)
+    output:
+        stockholm_file = 'data/mmseqs/input/msa_trimmed.sth'
+    params:
+        family_ids = INPUT_TARGETS
+    script:
+        "scripts/faMSA_to_StockholmMSA.py"
+
+rule stockholm_to_MSAdb:
+    input:
+        rules.MSAfasta_to_stockholm.output
+    output:
+        'data/mmseqs/input/msa_trimmed.db'
+    shell:
+        'mmseqs convertmsa {input} {output}'
+
+rule MSAdb_to_profile:
+    input:
+        rules.stockholm_to_MSAdb.output
+    output:
+        'data/mmseqs/profile/profile'
+    shell:
+        'mmseqs msa2profile {input} {output} '
+        '--match-mode 1 --msa-type 2 --threads {THREADS}'
+
+rule fasta_to_db:
+    input:
+        os.path.join(QUERY_DIR, '{query}.fs')
+    output:
+        os.path.join(QUERY_DIR, 'query_dbs/{query}')
+    shell:
+        'mmseqs createdb {input} {output}'
+
+rule search_mmseqs:
+    input:
+        profile = rules.MSAdb_to_profile.output,
+        fasta = rules.fasta_to_db.output
+    output:
+        db = temp('data/mmseqs/search/{query}.db'),
+        index = temp('data/mmseqs/search/{query}.db.index'),
+        tsv = 'data/mmseqs/search/{query}.m8',
+    run:
+        shell('mmseqs search --threads {THREADS} {input.fasta} {input.profile} {output.db} {TMP_DIR}')
+        shell('mmseqs convertalis --threads {threads} {input.fasta} {input.profile} {output.db} {output.tsv}')
