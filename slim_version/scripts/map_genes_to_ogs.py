@@ -1,11 +1,11 @@
 import pandas as pd
 from Bio import SeqIO
-from utils import print_progress
+from myutils.utils import print_progress
 import os
 
 def og(og_filename):
     '''Extract cluster ID and Sequence ID from file containing orthologous groups (og)'''
-    df = pd.read_table(og_filename, skiprows=7, skipfooter=2, engine='python', names=[
+    df = pd.read_table(og_filename, delim_whitespace=True, skiprows=1, skipfooter=0, engine='python', names=[
         "clid", "seq_id", "seq_type", "length", "start", "end", "rawscore", "normscore", "evalue"
         ])
     return df
@@ -38,7 +38,9 @@ def load_sequences(seq_id_list):
     not_found = 0
     for i, id in enumerate(seq_id_sorted):
         genome_id = genome_id_sorted[i]
-        filename = 'data/genomes/{}.fs'.format(genome_id)
+        filename = 'genomes/{}.fs'.format(genome_id)
+        if not os.path.exists(filename):
+            continue
         if filename != openfile:
             gene_records = load_data(filename)
             gene_ids = [g.id for g in gene_records]
@@ -52,14 +54,19 @@ def load_sequences(seq_id_list):
     return sequences
 
 if __name__ == "__main__":
-    og_filename = "data/2335.og"
-    num_ogs = 2328
-    for i in range(num_ogs):
-        print_progress(i+1,num_ogs)
-        if os.path.isfile('data/OGs/og_{}.fasta'.format(i)):
-            continue
-        seq_ids = find_all_seqs(og_filename, i)
-        seqs = load_sequences(seq_ids)
-        if len(seqs) > 0:
-            with open('data/OGs/og_{}.fasta'.format(i), 'w') as og_out:
-                SeqIO.write(seqs, og_out, "fasta")
+    og_filename = "561.og"
+    df = og(og_filename)
+    nunq = len(df.groupby('seq_id'))
+    print('nunq', nunq)
+    # num_ogs = 6044
+    # if not os.path.isdir("OGs"):
+    #     os.mkdir("OGs")
+    # for i in range(num_ogs):
+    #     print_progress(i+1,num_ogs)
+    #     if os.path.isfile('OGs/og_{}.fasta'.format(i)):
+    #         continue
+    #     seq_ids = find_all_seqs(og_filename, i)
+    #     seqs = load_sequences(seq_ids)
+    #     if len(seqs) > 0:
+    #         with open('OGs/og_{}.fasta'.format(i), 'w') as og_out:
+    #             SeqIO.write(seqs, og_out, "fasta")

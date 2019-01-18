@@ -1,21 +1,33 @@
-INPUT_TARGETS = [i for i in range(2328) if os.path.isfile('data/OGs/og_{}.fasta'.format(i))]
-THREADS = 8
-QUERY_DIR = "data/genomes/"
-TMP_DIR = "data/mmseqs/search/tmp/"
-GENOMES = ["000019625.1", "000230655.2", "000828655.1", "000828675.1", "000832145.1"]
+configfile: "config.yaml"
+
+GENOMES = config["genome_name"]
+THREADS = config["threads"]
+QUERY_DIR = config["query_dir"]
+TMP_DIR = config["tmp_dir"]
+SEARCH_OUT_DIR = config["search_dir"]
+OG_SEQS_DIR = config["og_seqs_dir"]
+OG_IDS = [i for i in range(6044) if os.path.isfile('{0}og_{1}.fasta'.format(OG_SEQS_DIR, i))]
+MSA_DIR = config["msa_dir"]
+MMSEQS_INPUT_DIR = config["mmseqs_input_dir"]
+PROFILE_DIR = config["profile_dir"]
+OUTPUT_TSV_DIR = config["output_tsv_dir"]
+PATH_TO_SNAKEFILE = config["path_to_snakefile"]
 
 rule all:
     input:
         #["data/msa/og_{}.trim.al.fa".format(i) for i in range(5)],
         #"data/mmseqs/input/msa_trimmed.db"
         #"data/mmseqs/profile/profile"
-        expand("data/mmseqs/search/{query}.m8", query=GENOMES)
+        expand("{search_out}{query}.m8", search_out=SEARCH_OUT_DIR, query=GENOMES)
+        #expand("{output_tsv}{query}.tsv", output_tsv=OUTPUT_TSV_DIR, query=GENOMES)
 
 rule align:
     input:
-        'data/OGs/og_{og_id}.fasta'
+        expand('{og_seqs}og_{{og_id}}.fasta', og_seqs=OG_SEQS_DIR)
     output:
-        'data/msa/og_{og_id}.al.fa'
+        expand('{msa_dir}og_{{og_id}}.al.fa', msa_dir=MSA_DIR)
+    threads:
+        THREADS
     shell:
         'mafft --quiet {input} > {output}'
 
@@ -23,18 +35,20 @@ rule trim:
     input:
         rules.align.output
     output:
-        'data/msa/og_{og_id}.trim.al.fa'
+        expand('{msa_dir}og_{{og_id}}.trim.al.fa', msa_dir=MSA_DIR)
+    threads:
+        THREADS
     run:
         shell('trimal -in {input} -out {output}')
-        shell('python scripts/faMSAPercID.py {output}')
+        shell('python {PATH_TO_SNAKEFILE}scripts/faMSAPercID.py {output}')
 
 rule MSAfasta_to_stockholm:
     input:
-        alignment_files = expand(rules.trim.output, og_id=INPUT_TARGETS)
+        alignment_files = expand(rules.trim.output, og_id=OG_IDS)
     output:
-        stockholm_file = 'data/mmseqs/input/msa_trimmed.sth'
+        stockholm_file = '{mmseqs_input_dir}msa_trimmed.sth'.format(mmseqs_input_dir=MMSEQS_INPUT_DIR)
     params:
-        family_ids = INPUT_TARGETS
+        family_ids = OG_IDS
     script:
         "scripts/faMSA_to_StockholmMSA.py"
 
@@ -42,7 +56,7 @@ rule stockholm_to_MSAdb:
     input:
         rules.MSAfasta_to_stockholm.output
     output:
-        'data/mmseqs/input/msa_trimmed.db'
+        expand('{mmseqs_input_dir}msa_trimmed.db', mmseqs_input_dir=MMSEQS_INPUT_DIR)
     shell:
         'mmseqs convertmsa {input} {output}'
 
@@ -50,7 +64,7 @@ rule MSAdb_to_profile:
     input:
         rules.stockholm_to_MSAdb.output
     output:
-        'data/mmseqs/profile/profile'
+        expand('{profile_dir}profile', profile_dir=PROFILE_DIR)
     shell:
         'mmseqs msa2profile {input} {output} '
         '--match-mode 1 --msa-type 2 --threads {THREADS}'
@@ -68,9 +82,17 @@ rule search_mmseqs:
         profile = rules.MSAdb_to_profile.output,
         fasta = rules.fasta_to_db.output
     output:
-        db = temp('data/mmseqs/search/{query}.db'),
-        index = temp('data/mmseqs/search/{query}.db.index'),
-        tsv = 'data/mmseqs/search/{query}.m8',
+        db = temp(expand('{search_out}{{query}}.db', search_out=SEARCH_OUT_DIR)),
+        index = temp(expand('{search_out}{{query}}.db.index', search_out=SEARCH_OUT_DIR)),
+        tsv = expand('{search_out}{{query}}.m8', search_out=SEARCH_OUT_DIR),
     run:
         shell('mmseqs search --threads {THREADS} {input.fasta} {input.profile} {output.db} {TMP_DIR}')
         shell('mmseqs convertalis --threads {threads} {input.fasta} {input.profile} {output.db} {output.tsv}')
+
+rule create_output_tsv:
+    input:
+        rules.search_mmseqs.output.tsv
+    output:
+        expand('{output_tsv}{{query}}.tsv', output_tsv=OUTPUT_TSV_DIR)
+    script:
+        'scripts/filter_matches.py'
