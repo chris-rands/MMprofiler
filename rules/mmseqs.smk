@@ -1,22 +1,10 @@
 
 ## MMSeqs2 rules
-localrules: MSAfasta_to_stockholm
-rule MSAfasta_to_stockholm:
-    input:
-        alignment_files= expand(rules.trim.output,input_targets=INPUT_TARGETS)
-    output:
-        stockholm_file='mmseqs/input/msa_trimmed.sth'
-    params:
-        family_ids=INPUT_TARGETS
-    threads:
-        1
-    script:
-        "../scripts/faMSA_to_StockholmMSA.py"
 
 
 rule stockholm_to_MSAdb:
     input:
-        config.get('stockholm_file',rules.MSAfasta_to_stockholm.output)
+        STOCKHOLMFILE
     output:
         'mmseqs/input/msa_trimmed.db'
     conda:

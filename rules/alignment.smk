@@ -3,7 +3,7 @@ from common import faMSA_stats
 
 ## Alignment rules
 
-if config.get('aligner','clustalo') == 'clustalo':
+if config.get('aligner','mafft') == 'clustalo':
 
     rule align:
         input:
@@ -16,7 +16,7 @@ if config.get('aligner','clustalo') == 'clustalo':
         shell:
             'clustalo --in {input} --out {output} --auto --threads {threads}'
 
-elif config.get('aligner','clustalo') == 'mafft':
+elif config.get('aligner','mafft') == 'mafft':
 
     rule align:
         input:
@@ -46,16 +46,16 @@ rule trim:
         'trimal -in {input} -out {output}'
         ' {params.params} '
 
-
-rule logo:
-    input:
-        rules.trim.output
-    output:
-        'msa/{input_targets}.logo.pdf'
-    conda:
-        '../envs/alignment.yaml'
-    shell:
-        'weblogo --format pdf --sequence-type protein < {input} > {output}'
+#
+# rule logo:
+#     input:
+#         rules.trim.output
+#     output:
+#         'msa/{input_targets}.logo.pdf'
+#     conda:
+#         '../envs/alignment.yaml'
+#     shell:
+#         'weblogo --format pdf --sequence-type protein < {input} > {output}'
 
 
 rule align_stats:
@@ -66,3 +66,18 @@ rule align_stats:
     threads: 1
     run:
         faMSA_stats.collate_stats([os.path.dirname(input[0])], output[0])
+
+
+
+localrules: MSAfasta_to_stockholm
+rule MSAfasta_to_stockholm:
+    input:
+        alignment_files= expand(rules.trim.output,input_targets=INPUT_TARGETS)
+    output:
+        stockholm_file=STOCKHOLMFILE
+    params:
+        family_ids=INPUT_TARGETS
+    threads:
+        1
+    script:
+        "../scripts/faMSA_to_StockholmMSA.py"

@@ -22,36 +22,26 @@ import glob
 __author__ = 'Chris Rands, Silas Kieser'
 SCRIPTS_DIR =  os.path.join(os.path.dirname(os.path.abspath(workflow.snakefile)), "scripts")
 sys.path.append(SCRIPTS_DIR)
-# TODO: one could also use the scripts directive, wich automaticaly ajusts the path from the Snakefile.
+
 INPUT_SUFFIX = config['suffix'].lstrip('.')
+STOCKHOLMFILE= config['stockholm_file']
 
-if "in_dir" in config:
 
-    # Inputs
-    INPUT_DIR = config['in_dir']
-
-    #TODO: check if files exist
-
-    if config.get('target_names') is None:
-
-        INPUT_TARGETS, = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX))
-    else:
-        INPUT_TARGETS = config['target_names']
-
-    print(f'Input targets: {INPUT_TARGETS}')
+if 'faa_folder' in config:
+    INPUT_DIR=config['faa_folder']
+    INPUT_TARGETS = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX)).targets
 
 
     if len(INPUT_TARGETS)==0:
-        raise Exception("No input targes found in {in_dir}/*{suffix}. Change 'in_dir' and 'suffix' in the config file.".format(**config))
-    elif len(INPUT_TARGETS) > 500:
-        raise Exception(" I don't now if I can handle {} files".format(len(INPUT_TARGETS)))
+        raise Exception("No input targes found in {faa_folder}/*{suffix}. Change the comand line options.".format(**config))
 
 else:
-    if not "stockholm_file" in config:
-        raise IOError("need 'in_dir' or 'stockholm_file' in configfile.")
 
     INPUT_TARGETS=[]
     INPUT_DIR=""
+
+
+
 
 
 if config.get('query_dir') is not None:
@@ -76,13 +66,24 @@ if not os.path.exists(config['tmpdir']): os.makedirs(config['tmpdir'])
 
 
 
-# Rules
-
-
 if INPUT_QUERRIES is not None:
     rule mmseqs:
         input:
             expand('search/{query}.m8',query = INPUT_QUERRIES)
+
+
+
+# rule mmseqs_evaluate:
+#     input:
+#         # MMSeqs2 Profiles
+#         'mmseqs/profile/profile',
+#         # 'mmseqs/pssm/profile.pssm' # works but may be ressource intensive
+#         #expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
+#     output:
+#         touch('mmSeqs2.done')
+
+include: 'rules/alignment.smk'
+include: 'rules/mmseqs.smk'
 
 rule all:
     input:
@@ -91,37 +92,11 @@ rule all:
         #expand('msa_trim_logo/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
 
 
-rule mmseqs_evaluate:
-    input:
-        # MMSeqs2 Profiles
-        'mmseqs/profile/profile',
-        # 'mmseqs/pssm/profile.pssm' # works but may be ressource intensive
-        #expand('mmseqs/scores/{category}/{input_targets}.m8', category=['negative','train'] ,input_targets=INPUT_TARGETS)
-    output:
-        touch('mmSeqs2.done')
-
-include: 'rules/alignment.smk'
-include: 'rules/mmseqs.smk'
-
-
-rule hmmer:
-    input:
-        # HMMER3 HMMs
-        expand('hmms/{input_targets}.hmm', input_targets=INPUT_TARGETS),
-        expand('scores_truePositives/{input_targets}.scores', input_targets=INPUT_TARGETS),
-        expand('scores_otherSeqs/{input_targets}.scores', input_targets=INPUT_TARGETS),
-        expand('hmms_with_GA_thresholds/{input_targets}.hmm', input_targets=INPUT_TARGETS),
-        expand('msa_trim_alignment_stats.txt')
-    output:
-        touch('hmmer.done')
-
-include: 'rules/hmmer.smk'
-
-# this files are intermediate files, do we request them?
-
 rule all_align:
     input:
+        STOCKHOLMFILE
+
         # Alignments
-        expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
-        expand('msa/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
+        #expand('msa/{input_targets}.al.fa', input_targets=INPUT_TARGETS),
+        #expand('msa/{input_targets}.trim.al.fa', input_targets=INPUT_TARGETS),
+        #expand('msa/{input_targets}.logo.pdf', input_targets=INPUT_TARGETS)
