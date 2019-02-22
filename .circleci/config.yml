@@ -1,0 +1,27 @@
+defaults: &defaults
+  docker:
+    - image: continuumio/miniconda3
+
+version: 2
+
+jobs:
+  build:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - checkout
+      - run: conda config --add channels conda-forge
+      - run: conda config --add channels bioconda
+      - run: conda config --set always_yes true
+      - run: conda config --set quiet true
+      - run: conda install python>=3.6 snakemake biopython mafft numpy trimal=1.4.1 mmseqs2 clustalo
+      - run: python setup.py install
+      - run: mmprofiler --help
+      - run: mmprofiler --version
+      - run: ./test.sh
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build

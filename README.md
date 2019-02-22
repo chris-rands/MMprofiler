@@ -28,7 +28,9 @@ Requires:
   - trimal=1.4.1
   - mmseqs2
   - snakemake
-  - Python>=3.6 with numpy, Biopython, matplotlib, scipy
+  - Biopython
+  - numpy
+  - Python>=3.6
 
 clone git repository.
 

@@ -32,3 +32,4 @@ scripts/.DS_Store
 .snakemake*
 test_results
 !setup.py
+!.circleci/config.yaml
