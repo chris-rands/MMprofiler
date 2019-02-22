@@ -14,7 +14,7 @@ jobs:
       - run: conda config --add channels bioconda
       - run: conda config --set always_yes true
       - run: conda config --set quiet true
-      - run: conda install python>=3.6 snakemake biopython mafft numpy trimal=1.4.1 mmseqs2 clustalo
+      - run: conda install python>=3.6 snakemake biopython mafft numpy trimal=1.4.1 mmseqs2 clustalo click
       - run: python setup.py install
       - run: mmprofiler --help
       - run: mmprofiler --version

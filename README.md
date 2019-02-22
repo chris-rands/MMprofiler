@@ -30,6 +30,7 @@ Requires:
   - snakemake
   - Biopython
   - numpy
+  - click 7
   - Python>=3.6
 
 clone git repository.
