@@ -6,8 +6,10 @@
 scripts/.snakemake*
 scripts/common/__pycache__
 scripts/.DS_Store
+!mmprofiler
 !Snakefile
-!config.yaml
+!mmprofiler/config.yaml
+!mmprofiler/*
 !samples.tsv
 !resources
 !resources/*
@@ -34,3 +36,4 @@ test_results
 !setup.py
 !.circleci/config.yaml
 !MANIFEST.in
+!mmprofiler.py

@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 def get_snakefile(file="Snakefile"):
-    sf = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..', file)
+    sf = os.path.join(os.path.dirname(os.path.abspath(__file__)), file)
     if not os.path.exists(sf):
         sys.exit("Unable to locate the Snakemake workflow file; tried %s" % sf)
     return sf
