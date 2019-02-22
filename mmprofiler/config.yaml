@@ -1,18 +1,14 @@
-# This file should contain everything to configure the workflow on a global scale.
-# In case of sample based data it should be complemented by a samples.tsv file that contains
-# one row per sample. It can be parsed easily via pandas.
 
 threads: 8
 
-
-#specify in_dir or stockholm_file for already aligned sequences e.g. pfam
-#in_dir: "../data" # relative to working dir- currently relative to Snakefile?
-
-suffix: ".fa"
+profile_match_ratio: 0.5
+profile_extra: '' #extra commands supplied to msa2profile
+suffix: ".faa"
 aligner: "mafft"  # [clustalo, mafft]
 hmmsearch_evalue: 10
 mmseqs_search_commands: ""
 # parameters for trimal
+
 trimal:
   gapthreshold: 0.9
 #  gappyout: "" #Use automated selection on "gappyout" mode. This method only uses information based on gaps' distribution. (see User Guide).

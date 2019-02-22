@@ -26,12 +26,15 @@ rule MSAdb_to_profile:
         rules.stockholm_to_MSAdb.output
     output:
         directory(PROFILE)
+    params:
+        match_ratio=config['profile_match_ratio'],
+        extra=config['profile_extra']
     conda:
         '../envs/mmseqs.yaml'
     shell:
         'mkdir {output} ;'
         'mmseqs msa2profile {input} {output}/profile '
-        '--match-mode 1 --msa-type 2 --threads {threads}'
+        '--match-mode 1 --msa-type 2 --match-ratio {params.match_ratio} --threads {threads}'
 
 # # ERROR: gives only first profile
 # rule profile_to_pssm:
