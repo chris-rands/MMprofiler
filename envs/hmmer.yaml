@@ -1,7 +1,0 @@
-# conda environments needed for the workflow should be stored here.
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - hmmer=3

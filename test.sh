@@ -2,14 +2,14 @@
 
 set -e
 
-echo "Evaluate"
 
-./pfpf -d test_results --config in_dir="../.test/data" query_dir="../.test/data" -j 3 $@
+cd .test
 
-echo "Query"
+# align
+mmprofiler align data --faa-extension .fa --stockholm aligned.stk $@
 
-./pfpf -d test_results --config in_dir="../.test/data" query_dir="../.test/queries" -j 3 $@
+#build
+mmprofiler build aligned.stk mmprofile $@
 
-#
-
-./pfpf -d test_pfam --config stockholm_file="../.test/data/pfamA_slim.stk" query_dir="../.test/queries" -j 3 $@
+# search
+mmprofiler search -o mapresults mmprofile queries/*.fa data/*.fa $@
