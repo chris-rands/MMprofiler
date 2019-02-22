@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-
-
-snakemake -s $DIR/Snakefile -d workdir -j 3 --configfile $DIR/config.yaml -p --use-conda  --conda-prefix ~/conda_envs $@

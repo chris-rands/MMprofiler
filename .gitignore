@@ -33,3 +33,4 @@ scripts/.DS_Store
 test_results
 !setup.py
 !.circleci/config.yaml
+!MANIFEST.in
