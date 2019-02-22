@@ -31,3 +31,4 @@ scripts/.DS_Store
 !pfpf
 .snakemake*
 test_results
+!setup.py

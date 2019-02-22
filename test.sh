@@ -2,7 +2,15 @@
 
 set -e
 
-mmprofiler align ".test/data" -d test_results --faa-extension .fa $@
+mkdir -p .test/results
+cd .test/results
+
+mmprofiler align "../data" --faa-extension .fa --stockholm aligned.stk $@
+
+mmprofiler build aligned.stk mmprofile $@
+
+mmprofiler search -o mapresults mmprofile ../queries/*.fa $@
+
 
 # ./pfpf -d test_results --config in_dir="../.test/data" query_dir="../.test/data" -j 3 $@
 #

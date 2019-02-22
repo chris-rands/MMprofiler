@@ -8,7 +8,7 @@ import subprocess
 import click
 
 __version__=0.1
-
+__author__ = 'Silas Kieser,Chris Rands, Matthew Berkeley'
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,11 +36,11 @@ def cli(obj):
 @cli.command(
     "align",
     context_settings=dict(ignore_unknown_options=True),
-    short_help="align "
+    short_help="align multiple protein families into stockholm format "
 )
 @click.argument(
     "faa-folder",
-    type=click.Path(dir_okay=True,readable=True,resolve_path=True)
+    type=click.Path(dir_okay=True,file_okay=False,readable=True,resolve_path=True)
 )
 @click.option("-s",
     "--stockholm",
@@ -86,10 +86,9 @@ def align(faa_folder, stockholm,alignments,threads, faa_extension,config_file, s
         logging.critical(f"config-file not found: {config_file}")
         sys.exit(1)
 
-    cmd =  (f"snakemake --snakefile {get_snakefile()} "
+    cmd =  (f"snakemake --snakefile {get_snakefile('rules/alignment.smk')} "
             f" --jobs {threads} --rerun-incomplete "
             f" --configfile '{config_file}' --nolock "
-            f" all_align "
             f" {' '.join(snakemake_args)} "
             f" --config faa_folder={faa_folder} suffix={faa_extension} stockholm_file={stockholm}")
 
@@ -102,99 +101,96 @@ def align(faa_folder, stockholm,alignments,threads, faa_extension,config_file, s
         exit(1)
 
 
-#
-#
-#
-#
-#
-#
+#  build
 
 
-#
-# from atlas import __version__
-# from atlas.conf import make_config,prepare_sample_table,load_configfile
-# from atlas.conf import validate_config,run_init
-#
-#
-# logging.basicConfig(
-#     level=logging.INFO,
-#     datefmt="%Y-%m-%d %H:%M",
-#     format="[%(asctime)s %(levelname)s] %(message)s",
-# )
-#
-# def log_exception(msg):
-#     logging.critical(msg)
-#     logging.info("Documentation is available at: https://metagenome-atlas.readthedocs.io")
-#     logging.info("Issues can be raised at: https://github.com/metagenome-atlas/atlas/issues")
-#     sys.exit(1)
-#
-
-# cli.add_command(run_init)
-#
-#
-#
-#
-
-#
-#
-#
-#
-#
-#
-# ## QC command
-#
-#
-#
-#
-#
-# # Download
-# @cli.command(
-#     "download",
-#     context_settings=dict(ignore_unknown_options=True),
-#     short_help="download reference files (need ~50GB)",
-# )
-# @click.option("-d",
-#     "--db-dir",
-#     help="location to store databases",
-#     type=click.Path(dir_okay=True,writable=True,resolve_path=True),
-#     required=True
-# )
-# @click.option(
-#     "-j",
-#     "--jobs",
-#     default=1,
-#     type=int,
-#     show_default=True,
-#     help="number of simultaneous downloads",
-# )
-# @click.argument("snakemake_args", nargs=-1, type=click.UNPROCESSED)
-# def run_download(db_dir,jobs, snakemake_args):
-#     """Executes a snakemake workflow to download reference database files and validate based on
-#     their MD5 checksum.
-#     """
-#
-#     cmd = (
-#         "snakemake --snakefile {snakefile} "
-#         "--printshellcmds --jobs {jobs} --rerun-incomplete "
-#         "--nolock "
-#         "--config database_dir='{db_dir}' {add_args} "
-#         "{args}"
-#     ).format(
-#         snakefile=get_snakefile("rules/download.snakefile"),
-#         jobs=jobs,
-#         db_dir=db_dir,
-#         add_args="" if snakemake_args and snakemake_args[0].startswith("-") else "--",
-#         args=" ".join(snakemake_args),
-#     )
-#     logging.info("Executing: %s" % cmd)
-#     try:
-#         subprocess.check_call(cmd, shell=True)
-#     except subprocess.CalledProcessError as e:
-#         # removes the traceback
-#         logging.critical(e)
-#         exit(1)
-#
+@cli.command(
+    "build",
+    context_settings=dict(ignore_unknown_options=True),
+    short_help="build mmseq2 profile from alignment in stockholm file "
+)
+@click.argument(
+    "stockholm_alignment",
+    type=click.Path(dir_okay=False,writable=True,resolve_path=True),
+#    help="Algned protein families in stockholm format",
+)
+@click.argument(
+    "profile_folder",
+    type=click.Path(dir_okay=True,file_okay=False,exists=False,resolve_path=True),
+    default='mmprofile'
+)
+@click.argument("snakemake_args", nargs=-1, type=click.UNPROCESSED)
+def build(stockholm_alignment,profile_folder, snakemake_args):
+    """
+        Takes aligned protein families in stockholm format and builds a mmseqs profile.
+        The output is the FOLDER containing a 'profile' binary file and several indexes
+    """
 
 
-# if __name__ == "__main__":
-#     cli()
+    cmd =  (f"snakemake --snakefile {get_snakefile('rules/build.smk')} "
+            f" --jobs 1 --rerun-incomplete "
+            f" --nolock "
+            f" {' '.join(snakemake_args)} "
+            f" --config stockholm_file={stockholm_alignment} profile={profile_folder}")
+
+    logging.debug("Executing: %s" % cmd)
+    try:
+        subprocess.check_call(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        # removes the traceback
+        logging.critical(e)
+        exit(1)
+
+
+#  build
+
+
+@cli.command(
+    "search",
+    context_settings=dict(ignore_unknown_options=True),
+    short_help="search proteins against profile datbases "
+)
+@click.option("-t",
+    "--threads",
+    type=int,
+    default=multiprocessing.cpu_count(),
+    help="use at most this many jobs in parallel",
+)
+@click.option("-o",
+    "--output-folder",
+    type=click.Path(dir_okay=True,file_okay=False,resolve_path=True),
+    default= 'mapresults',
+    help="Output folder",
+)
+@click.argument(
+    "profile_folder",nargs=1,
+    type=click.Path(dir_okay=True,file_okay=False,exists=True,resolve_path=True),
+)
+@click.argument(
+    "faa",nargs=-1,
+    type=click.Path(dir_okay=False,file_okay=True,exists=True,resolve_path=True),
+)
+#@click.argument("snakemake_args", nargs=-1, type=click.UNPROCESSED)
+def search(threads,output_folder,profile_folder, faa):
+    """
+        Searches a bunch of faa files against the a profile generated with 'mmprofiler build'.
+    """
+
+
+    cmd =  (f"snakemake --snakefile {get_snakefile('rules/mmseqs.smk')} "
+            f" --jobs {threads} --rerun-incomplete "
+            f" --nolock "
+            f' --config profile={profile_folder} queries="{faa}" threads={threads} output_folder={output_folder}')
+
+    logging.debug("Executing: %s" % cmd)
+    try:
+        subprocess.check_call(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        # removes the traceback
+        logging.critical(e)
+        exit(1)
+
+
+
+if __name__ == "__main__":
+     cli()

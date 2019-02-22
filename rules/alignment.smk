@@ -1,5 +1,27 @@
+import os
+import sys
 
-from common import faMSA_stats
+
+
+
+
+INPUT_SUFFIX = config['suffix'].lstrip('.')
+STOCKHOLMFILE= config['stockholm_file']
+
+INPUT_DIR=config['faa_folder']
+INPUT_TARGETS = glob_wildcards('{}/{{targets}}.{}'.format(INPUT_DIR, INPUT_SUFFIX)).targets
+
+
+if len(INPUT_TARGETS)==0:
+    raise Exception("No input targes found in {faa_folder}/*{suffix}. Change the comand line options.".format(**config))
+
+
+
+
+rule all_align:
+    input:
+        STOCKHOLMFILE
+
 
 ## Alignment rules
 
@@ -58,14 +80,18 @@ rule trim:
 #         'weblogo --format pdf --sequence-type protein < {input} > {output}'
 
 
-rule align_stats:
-    input:
-        expand(rules.trim.output, input_targets=INPUT_TARGETS)
-    output:
-        'msa/trim_alignment_stats.txt'
-    threads: 1
-    run:
-        faMSA_stats.collate_stats([os.path.dirname(input[0])], output[0])
+
+# SCRIPTS_DIR =  os.path.join(os.path.dirname(os.path.abspath(workflow.snakefile)), "scripts")
+# sys.path.append(SCRIPTS_DIR)
+# from common import faMSA_stats
+# rule align_stats:
+#     input:
+#         expand(rules.trim.output, input_targets=INPUT_TARGETS)
+#     output:
+#         'msa/trim_alignment_stats.txt'
+#     threads: 1
+#     run:
+#         faMSA_stats.collate_stats([os.path.dirname(input[0])], output[0])
 
 
 
