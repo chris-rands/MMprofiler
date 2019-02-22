@@ -18,12 +18,8 @@ setup(
     version=get_version("mmprofiler/__init__.py"),
     packages=['mmprofiler'],
     install_requires=[
-        'click',
+        'Click',
     ],
-    package_data={'': [
-            "mmprofiler/*",
-                       ]},
-    #data_files=[(".", ["README.md", "LICENSE",'config.yaml'])],
     include_package_data=True,
     entry_points={'console_scripts': ['mmprofiler = mmprofiler.mmprofiler:cli']
           },

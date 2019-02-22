@@ -7,7 +7,7 @@ import sys
 import subprocess
 import click
 
-__version__=0.1
+__version__=0.2
 __author__ = 'Silas Kieser,Chris Rands, Matthew Berkeley'
 
 logging.basicConfig(
