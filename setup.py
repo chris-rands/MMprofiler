@@ -20,6 +20,9 @@ setup(
     install_requires=[
         'Click',
     ],
+    package_data={'': [
+        "mmprofiler/*",
+                   ]},
     include_package_data=True,
     entry_points={'console_scripts': ['mmprofiler = mmprofiler.mmprofiler:cli']
           },
